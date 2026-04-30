@@ -7,6 +7,7 @@ Bryan's personal Claude Code plugins and skills.
 | Plugin | Description |
 |---|---|
 | [`ralph`](plugins/ralph) | Install and run the Ralph Wiggum agentic loop (claude/codex) in any project. |
+| [`manual-chrome-review`](plugins/manual-chrome-review) | Verify a running web app in a real Chrome session — user drives keyboard/mouse, Claude inspects DOM/network/WebSocket/server state. |
 
 ## Install
 
