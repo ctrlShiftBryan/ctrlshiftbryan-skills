@@ -48,6 +48,16 @@
         "github": "ctrlShiftBryan"
       },
       "source": "./plugins/review-address"
+    },
+    {
+      "name": "figma-fetcher",
+      "description": "Offload Figma MCP read calls to a Haiku-powered sub-agent to cut token cost. Auto-delegates whenever a figma.com URL appears or any Figma read tool (get_design_context, get_screenshot, get_metadata, get_variable_defs, get_code_connect_map) would be called. Fetches all five tools in one shot, caches the result at tmp/figma/{fileKey}__{nodeId}.json plus a sibling .png, and returns a small markdown digest to the main conversation. Read-only — write tools (use_figma, create_new_file, generate_figma_design) stay in the main agent. Requires the official Figma MCP server.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/figma-fetcher"
     }
   ]
 }

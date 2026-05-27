@@ -10,6 +10,7 @@ Bryan's personal Claude Code plugins and skills.
 | [`manual-chrome-review`](plugins/manual-chrome-review) | Verify a running web app in a real Chrome session — user drives keyboard/mouse, Claude inspects DOM/network/WebSocket/server state. |
 | [`pr-review-html`](plugins/pr-review-html) | Generate a single-file interactive HTML code-review artifact for a GitHub PR. |
 | [`review-address`](plugins/review-address) | Reply to every PR review comment (GitHub Copilot, bots, humans) with code fixes or reasoned push-backs. |
+| [`figma-fetcher`](plugins/figma-fetcher) | Auto-delegating Haiku sub-agent that offloads Figma MCP read calls out of the main conversation, caching design payloads to `tmp/figma/`. |
 
 ## Install
 
