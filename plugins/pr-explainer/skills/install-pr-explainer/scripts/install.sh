@@ -7,7 +7,8 @@
 #                   [--explainer-dir NAME] [--publish-cmd CMD]
 #                   [--no-bootstrap] [--no-pages] [--force]
 #
-# Env: CLAUDE_PLUGIN_ROOT (set by Claude Code) — points at the plugin root.
+# Self-contained: the bundled asset templates live next to this script (../assets),
+# so it works whether the skill is installed as a plugin or as a standalone skill.
 #
 # Requires: git, and (for the turnkey Pages/branch steps) the `gh` CLI,
 # authenticated, with a GitHub `origin` remote you can push to.
@@ -33,20 +34,19 @@ while [[ $# -gt 0 ]]; do
     --no-bootstrap)  do_bootstrap=0;     shift ;;
     --no-pages)      do_pages=0;         shift ;;
     --force)         force=1;            shift ;;
-    -h|--help)       sed -n '2,13p' "$0"; exit 0 ;;
+    -h|--help)       sed -n '2,14p' "$0"; exit 0 ;;
     *) echo "unknown arg: $1" >&2; exit 2 ;;
   esac
 done
 
-plugin_root="${CLAUDE_PLUGIN_ROOT:-}"
-if [[ -z "$plugin_root" ]]; then
-  plugin_root="$(cd "$(dirname "$0")/.." && pwd)"
-fi
-assets="$plugin_root/assets"
+# Resolve bundled assets relative to THIS script (../assets), independent of
+# CLAUDE_PLUGIN_ROOT — so it works the same installed as a plugin or standalone.
+skill_root="$(cd "$(dirname "$0")/.." && pwd)"
+assets="$skill_root/assets"
 
 [[ -d "$target" ]] || { echo "target not a directory: $target" >&2; exit 1; }
 [[ -f "$assets/.github/workflows/pr-explainer.yml" ]] \
-  || { echo "missing assets at $assets" >&2; exit 1; }
+  || { echo "missing bundled assets at $assets (skill not self-contained?)" >&2; exit 1; }
 
 cd "$target"
 

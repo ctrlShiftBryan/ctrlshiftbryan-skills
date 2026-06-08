@@ -4,6 +4,7 @@
 set -uo pipefail
 cd "$(git rev-parse --show-toplevel)"
 P=plugins/pr-explainer
+S=$P/skills/install-pr-explainer   # the skill dir — scripts + assets are bundled here
 fails=0
 pass(){ printf '  \033[32mPASS\033[0m %s\n' "$1"; }
 fail(){ printf '  \033[31mFAIL\033[0m %s\n' "$1"; fails=$((fails+1)); }
@@ -27,7 +28,7 @@ else
 fi
 
 sec "C. shellcheck (error severity gates)"
-for s in "$P/scripts/install.sh" "$P/assets/.github/scripts/pr-explainer-check.sh" "$P/assets/scripts/explainer-publish.sh"; do
+for s in "$S/scripts/install.sh" "$S/assets/.github/scripts/pr-explainer-check.sh" "$S/assets/scripts/explainer-publish.sh"; do
   if shellcheck -S error "$s" >/dev/null 2>&1; then pass "no errors: $s"; else fail "shellcheck errors: $s"; fi
 done
 
@@ -67,7 +68,9 @@ mk(){
   ) >/dev/null 2>&1
   echo "$d"
 }
-RUN(){ CLAUDE_PLUGIN_ROOT="$PWD/$P" bash "$P/scripts/install.sh" --target "$1" --no-bootstrap --no-pages "${@:2}"; }
+# Run with CLAUDE_PLUGIN_ROOT UNSET to prove the script self-resolves its assets
+# (the standalone-skill install case — the bug from issue #2).
+RUN(){ env -u CLAUDE_PLUGIN_ROOT bash "$S/scripts/install.sh" --target "$1" --no-bootstrap --no-pages "${@:2}"; }
 notoken(){ ! grep -rqE '__(BASE_BRANCH|AI_BRANCH|EXPLAINER_DIR|PUBLISH_CMD)__' "$1/.github" "$1/scripts" 2>/dev/null; }
 
 # E1: no package.json -> bash publish cmd
@@ -105,6 +108,19 @@ left="$(grep -rhoE '__[A-Z_]+__' "$d6/.github" "$d6/scripts" 2>/dev/null | grep 
 [[ "$left" == "__PAGES_BASE__ " ]] && pass "no-pages: only __PAGES_BASE__ remains" || fail "unexpected leftover tokens: [$left]"
 
 rm -rf "$d1" "$d2" "$d3" "$d4" "$d6"
+
+sec "F. skill is self-contained (standalone-skill install — issue #2)"
+selfok=1
+[[ -f "$S/scripts/install.sh" ]] || { fail "install.sh not bundled in skill dir"; selfok=0; }
+for t in .github/workflows/pr-explainer.yml .github/scripts/pr-explainer-check.sh \
+         scripts/explainer-publish.sh docs/pr-explainer.md; do
+  [[ -f "$S/assets/$t" ]] || { fail "missing bundled template: assets/$t"; selfok=0; }
+done
+[[ $selfok -eq 1 ]] && pass "install.sh + 4 templates bundled under the skill dir"
+# the plugin command must point at the relocated script
+grep -q 'skills/install-pr-explainer/scripts/install.sh' "$P/commands/install.md" \
+  && pass "plugin command points at the bundled script" \
+  || fail "command path not updated for relocated script"
 
 sec "RESULT"
 if [[ $fails -eq 0 ]]; then printf '\033[32mALL CHECKS PASSED\033[0m\n'; exit 0; else printf '\033[31m%d CHECK(S) FAILED\033[0m\n' "$fails"; exit 1; fi

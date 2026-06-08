@@ -38,17 +38,24 @@ A two-part system (see `references/architecture.md` for the full design):
 
 ## Approach
 
-The plugin ships a `/pr-explainer:install` slash command that runs the
-installer. The right behavior is almost always to run it directly against the
-current repo:
+The installer and all template files are bundled **inside this skill
+directory** (`scripts/install.sh` + `assets/`), so the skill is self-contained
+whether it was installed as a plugin or as a standalone skill. Run the bundled
+script by its absolute path — use this skill's own base directory (shown to you
+when the skill loads), not a hardcoded path:
 
 ```
-Tell the user: "Running /pr-explainer:install into the current repo."
-Then run: bash "${CLAUDE_PLUGIN_ROOT}/scripts/install.sh"
+Tell the user what you're about to do, then run:
+  bash "<this-skill-dir>/scripts/install.sh" --target <repo>
 ```
 
-`${CLAUDE_PLUGIN_ROOT}` resolves to this plugin's root inside Claude Code. To
-install somewhere else, pass `--target /path/to/repo`.
+`<this-skill-dir>` is the directory containing this SKILL.md. The script
+resolves its templates relative to itself, so do **not** depend on
+`${CLAUDE_PLUGIN_ROOT}` (it is unset for standalone-skill installs). If you are
+running inside the plugin, that same file is also at
+`${CLAUDE_PLUGIN_ROOT}/skills/install-pr-explainer/scripts/install.sh`, and the
+`/pr-explainer:install` command runs it for you. Default `--target` is the
+current directory; pass it explicitly to install elsewhere.
 
 Before running, sanity-check the prerequisites below and tell the user what the
 install will do to their GitHub repo (branch + Pages are real, outward-facing

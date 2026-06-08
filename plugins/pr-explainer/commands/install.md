@@ -18,7 +18,7 @@ workflow will post a status check on PRs — all real, outward-facing changes):
 Then run the installer:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/install.sh" $ARGUMENTS
+bash "${CLAUDE_PLUGIN_ROOT}/skills/install-pr-explainer/scripts/install.sh" $ARGUMENTS
 ```
 
 The script is idempotent — re-running is safe; existing files are skipped
