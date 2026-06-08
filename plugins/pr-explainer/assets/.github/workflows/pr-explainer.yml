@@ -1,0 +1,54 @@
+name: PR explainer status
+
+# Installed by the `pr-explainer` plugin. __TOKEN__ values are filled in at
+# install time by scripts/install.sh — re-run the installer to change them
+# rather than hand-editing.
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [__BASE_BRANCH__]
+  push:
+    branches: [__AI_BRANCH__]
+    paths:
+      - __EXPLAINER_DIR__/**
+
+permissions:
+  pull-requests: write
+  contents: read
+  # statuses: write lets us post a `pr-explainer` commit status to the PR head
+  # SHA. That status (not the job exit code) is the failing check on the PR, so
+  # the push-to-__AI_BRANCH__ run can flip it green on publish without a new commit.
+  statuses: write
+
+concurrency:
+  group: pr-explainer-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    name: Reconcile PR explainer status
+    runs-on: ubuntu-latest
+    # Skip for fork PRs — they cannot upsert comments with the read-only token.
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+
+    steps:
+      # fetch-depth: 0 — the check computes `git patch-id` over
+      # origin/<base>...<head>, which needs the merge-base, i.e. full history.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconcile explainer comment(s)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          AI_BRANCH: __AI_BRANCH__
+          EXPLAINER_DIR: __EXPLAINER_DIR__
+          # Base branch the PR diff is measured against (for DIFF_ID/patch-id).
+          BASE_BRANCH: __BASE_BRANCH__
+          # GitHub Pages base URL serving the __AI_BRANCH__ branch. Private-repo
+          # Pages gets a randomized *.pages.github.io subdomain (org-only).
+          # Source: gh api repos/:repo/pages --jq .html_url
+          PAGES_BASE: __PAGES_BASE__
+        run: bash .github/scripts/pr-explainer-check.sh

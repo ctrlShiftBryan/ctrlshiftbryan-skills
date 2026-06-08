@@ -6,9 +6,19 @@
   },
   "metadata": {
     "description": "Bryan's personal Claude Code plugins and skills.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "plugins": [
+    {
+      "name": "pr-explainer",
+      "description": "Install the AI PR-explainer GitHub Action into a repository (manual, user-invoked setup). Drops the nag workflow + check/publish scripts, bootstraps an orphan ai-docs branch, enables GitHub Pages, and wires up the repo-specific config so every PR gets a sticky 🔴/🟡/🟢 'explainer' comment + commit-status gate linking an AI-generated HTML walkthrough published to Pages. Invoke explicitly with /pr-explainer:install or by asking to install/set up/add the pr-explainer action — it does not trigger automatically from general PR, CI, or code-review conversation.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/pr-explainer"
+    },
     {
       "name": "ralph",
       "description": "Install and run the Ralph Wiggum agentic loop (claude/codex) in any project. Adds ralph/once.sh + ralph/afk.sh, package.json scripts, and the prompt/state-file scaffolding.",
