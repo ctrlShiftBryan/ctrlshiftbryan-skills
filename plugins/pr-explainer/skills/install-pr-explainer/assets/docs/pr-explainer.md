@@ -68,13 +68,18 @@ no-op `__BASE_BRANCH__` merge alone does **not** change the `DIFF_ID`.
 
 Run the generation prompt against the PR branch in Claude Code. Easiest path:
 copy it straight from the red/yellow bot comment — it already has the concrete
-filename (PR number + current `DIFF_ID`) filled in. The prompt looks like:
+filename (PR number + current `DIFF_ID`) and the PR link filled in.
 
-```
-explain what this PR does. build me an html explainer with visualizers that help me understand the PR. the explainer should give me manual verification instructions for verifying the app in the browser or command line cli so I can see the changes and ensure they didn't regress anything. Only include the most critical verification steps.
+The prompt is a single source of truth at
+[`.github/prompts/explainer-generation.md`](../.github/prompts/explainer-generation.md)
+(the bot comment embeds it verbatim, filling in the per-PR filename and PR URL).
+It instructs the generated HTML to:
 
-write the html file to __EXPLAINER_DIR__/<PR#>-<DIFF_ID>-explainer.html
-```
+- include the [Plannotator](https://plannotator.ai) inject `<script>` in its
+  `<head>`, so the published explainer can be annotated; and
+- carry a clickable link back to the PR near the top.
+
+It writes one file to `__EXPLAINER_DIR__/<PR#>-<DIFF_ID>-explainer.html`.
 
 ## 2. Publish it
 

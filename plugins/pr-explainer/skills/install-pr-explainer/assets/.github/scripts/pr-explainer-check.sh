@@ -107,18 +107,29 @@ compute_diff_id() {
   printf '%s' "${id:0:12}"
 }
 
+# The generation prompt lives in its own file (single source of truth, embedded
+# verbatim into the bot comment). It carries install-time tokens (__PUBLISH_CMD__)
+# plus runtime placeholders ({{EXPLAINER_PATH}}, {{PR_URL}}) filled per PR below.
+# Resolved relative to THIS script so it works regardless of the caller's cwd.
+PROMPT_FILE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../prompts/explainer-generation.md"
+
 # Build the verbatim Claude Code generation prompt for a concrete filename.
-# $1 = explainer filename (e.g. 101-bff96aa-explainer.html)
+# $1 = explainer filename (e.g. 101-bff96aa-explainer.html)   $2 = PR number
 generation_prompt() {
-  local filename="$1"
-  cat <<EOF
-explain what this PR does. build me an html explainer with visualizers that help me understand the PR. the explainer should give me manual verification instructions for verifying the app in the browser or command line cli so I can see the changes and ensure they didn't regress anything. Only include the most critical verification steps.
-
-write the html file to ${EXPLAINER_DIR}/${filename}
-
-After the file is written, publish it by running: __PUBLISH_CMD__
-Do not stop after generating the file -- you must run the publish command so the explainer goes live and this check turns green.
-EOF
+  local filename="$1" pr_number="$2"
+  local pr_url="https://github.com/${GH_REPO}/pull/${pr_number}"
+  if [[ ! -f "$PROMPT_FILE" ]]; then
+    # Mirror lag / missing file: degrade to a minimal inline ask so the bot
+    # comment still tells the user what to do. ('#' is safe as the sed delim:
+    # neither the path nor the URL can contain it.)
+    echo "::warning::prompt file not found at ${PROMPT_FILE}; using inline fallback" >&2
+    printf '/zoom-out and explain what this PR does, then build an html explainer and write it to %s\n\nLink back to the PR: %s\n' \
+      "${EXPLAINER_DIR}/${filename}" "$pr_url"
+    return
+  fi
+  sed -e "s#{{EXPLAINER_PATH}}#${EXPLAINER_DIR}/${filename}#g" \
+      -e "s#{{PR_URL}}#${pr_url}#g" \
+      "$PROMPT_FILE"
 }
 
 # Upsert the sticky comment for a PR. $1 = PR number, $2 = comment body.
@@ -231,7 +242,7 @@ moved -- a no-op base-branch merge alone would NOT trigger this.
 Regenerate and publish it for the current diff -- run this prompt in Claude Code:
 
 \`\`\`
-$(generation_prompt "$head_file")
+$(generation_prompt "$head_file" "$pr_number")
 \`\`\`
 
 This check turns green automatically once the explainer is published to the ${AI_BRANCH} branch.
@@ -254,7 +265,7 @@ No explainer found for the current commit \`${head_short}\`.
 Generate and publish it -- run this prompt in Claude Code:
 
 \`\`\`
-$(generation_prompt "$head_file")
+$(generation_prompt "$head_file" "$pr_number")
 \`\`\`
 
 This check turns green automatically once the explainer is published to the ${AI_BRANCH} branch.

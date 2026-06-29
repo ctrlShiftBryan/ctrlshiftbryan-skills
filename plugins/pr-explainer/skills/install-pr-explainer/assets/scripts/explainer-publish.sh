@@ -31,10 +31,13 @@ EXPLAINER_DIR='__EXPLAINER_DIR__'
 # Source: gh api repos/:repo/pages --jq .html_url
 PAGES_BASE='__PAGES_BASE__'
 # CI files mirrored into ai-docs on every publish so the push-triggered run
-# there always uses the current gating logic + permissions.
+# there always uses the current gating logic + permissions. The generation
+# prompt is included because pr-explainer-check.sh reads it at runtime to build
+# the bot comment, so the push-event run on ai-docs needs its own copy.
 CI_FILES=(
   ".github/workflows/pr-explainer.yml"
   ".github/scripts/pr-explainer-check.sh"
+  ".github/prompts/explainer-generation.md"
 )
 
 # --- 1. Resolve the current branch's PR ------------------------------------

@@ -73,14 +73,14 @@ mk(){
 RUN(){ env -u CLAUDE_PLUGIN_ROOT bash "$S/scripts/install.sh" --target "$1" --no-bootstrap --no-pages "${@:2}"; }
 notoken(){ ! grep -rqE '__(BASE_BRANCH|AI_BRANCH|EXPLAINER_DIR|PUBLISH_CMD)__' "$1/.github" "$1/scripts" 2>/dev/null; }
 
-# E1: no package.json -> bash publish cmd
+# E1: no package.json -> bash publish cmd (the publish cmd lives in the prompt file)
 d1="$(mk true)"; RUN "$d1" --base main >/dev/null 2>&1
-grep -q 'bash scripts/explainer-publish.sh' "$d1/.github/scripts/pr-explainer-check.sh" \
+grep -q 'bash scripts/explainer-publish.sh' "$d1/.github/prompts/explainer-generation.md" \
   && notoken "$d1" && pass "no-pkg: publish-cmd=bash, tokens filled" || fail "no-pkg case"
 
-# E2: pnpm repo -> pnpm publish cmd
+# E2: pnpm repo -> pnpm publish cmd (the publish cmd lives in the prompt file)
 d2="$(mk sh -c 'echo {} > package.json; : > pnpm-lock.yaml')"; RUN "$d2" --base main >/dev/null 2>&1
-grep -q 'pnpm explainer:publish' "$d2/.github/scripts/pr-explainer-check.sh" \
+grep -q 'pnpm explainer:publish' "$d2/.github/prompts/explainer-generation.md" \
   && jq -e '.scripts."explainer:publish"' "$d2/package.json" >/dev/null 2>&1 \
   && pass "pnpm: publish-cmd=pnpm + package.json script added" || fail "pnpm case"
 
@@ -113,10 +113,11 @@ sec "F. skill is self-contained (standalone-skill install — issue #2)"
 selfok=1
 [[ -f "$S/scripts/install.sh" ]] || { fail "install.sh not bundled in skill dir"; selfok=0; }
 for t in .github/workflows/pr-explainer.yml .github/scripts/pr-explainer-check.sh \
+         .github/prompts/explainer-generation.md \
          scripts/explainer-publish.sh docs/pr-explainer.md; do
   [[ -f "$S/assets/$t" ]] || { fail "missing bundled template: assets/$t"; selfok=0; }
 done
-[[ $selfok -eq 1 ]] && pass "install.sh + 4 templates bundled under the skill dir"
+[[ $selfok -eq 1 ]] && pass "install.sh + 5 templates bundled under the skill dir"
 # the plugin command must point at the relocated script
 grep -q 'skills/install-pr-explainer/scripts/install.sh' "$P/commands/install.md" \
   && pass "plugin command points at the bundled script" \

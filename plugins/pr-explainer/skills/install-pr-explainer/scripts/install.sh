@@ -111,12 +111,14 @@ subst() {
 # --- 1. copy the action files -----------------------------------------------
 copy "$assets/.github/workflows/pr-explainer.yml" ".github/workflows/pr-explainer.yml"
 copy "$assets/.github/scripts/pr-explainer-check.sh" ".github/scripts/pr-explainer-check.sh"
+copy "$assets/.github/prompts/explainer-generation.md" ".github/prompts/explainer-generation.md"
 copy "$assets/scripts/explainer-publish.sh" "scripts/explainer-publish.sh"
 copy "$assets/docs/pr-explainer.md" "docs/pr-explainer.md"
 chmod +x .github/scripts/pr-explainer-check.sh scripts/explainer-publish.sh 2>/dev/null || true
 
 # --- 2. fill in the non-Pages config (PAGES_BASE handled after enabling) -----
 for f in .github/workflows/pr-explainer.yml .github/scripts/pr-explainer-check.sh \
+         .github/prompts/explainer-generation.md \
          scripts/explainer-publish.sh docs/pr-explainer.md; do
   subst "$f" "__BASE_BRANCH__"   "$base"
   subst "$f" "__AI_BRANCH__"     "$ai_branch"
