@@ -13,6 +13,7 @@ Bryan's personal Claude Code plugins and skills.
 | [`figma-fetcher`](plugins/figma-fetcher) | agent | Auto-delegating Haiku sub-agent that offloads Figma MCP read calls out of the main conversation, caching design payloads to `tmp/figma/`. Read-only. |
 | [`pr-explainer`](plugins/pr-explainer) | command · skill | Install the AI PR-explainer GitHub Action into a repo — nag workflow + check/publish scripts, an orphan `ai-docs` branch, GitHub Pages, and a sticky 🔴/🟡/🟢 'explainer' comment + status gate linking an AI HTML walkthrough. |
 | [`post-review-as-bot`](plugins/post-review-as-bot) | skill | Post a code review to a GitHub PR as inline comments attributed to a GitHub App `[bot]` account — mints an installation token, validates comments against the diff, submits one atomic review. |
+| [`codex-delegation`](plugins/codex-delegation) | skills ×3 | Delegate work to Codex CLI (gpt-5.5) — `codex-implementation` (scoped changes via `codex exec`), `codex-review` (independent diff review), `codex-computer-use` (browser/simulator/screenshot verification). |
 
 ## Install
 
