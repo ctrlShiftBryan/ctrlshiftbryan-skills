@@ -36,6 +36,8 @@ npx skills add ctrlShiftBryan/ctrlshiftbryan-skills
 ctrlshiftbryan-skills/
 ├── .claude-plugin/
 │   └── marketplace.json     ← marketplace listing
+├── claude/
+│   └── CLAUDE.md            ← versioned copy of my global ~/.claude/CLAUDE.md
 └── plugins/
     └── ralph/
         ├── .claude-plugin/plugin.json
