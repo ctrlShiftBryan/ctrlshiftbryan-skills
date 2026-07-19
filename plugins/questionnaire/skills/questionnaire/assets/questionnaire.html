@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1a1d21; --muted: #6b7280;
+    --border: #e2e5e9; --accent: #2563eb; --accent-soft: #eff4ff;
+    --rec: #059669; --rec-soft: #ecfdf5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111418; --card: #1a1f26; --text: #e6e9ec; --muted: #9aa3ad;
+      --border: #2b323b; --accent: #60a5fa; --accent-soft: #1c2a42;
+      --rec: #34d399; --rec-soft: #12302a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .topbar {
+    position: sticky; top: 0; z-index: 10; background: var(--card);
+    border-bottom: 1px solid var(--border); padding: 12px 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .topbar h1 { font-size: 16px; margin: 0; flex: 1; }
+  .topbar .count { color: var(--muted); font-size: 13px; }
+  button.copy {
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+    padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  button.copy:hover { filter: brightness(1.1); }
+  button.copy.done { background: var(--rec); }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 24px 20px 80px; }
+  .q {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px 20px; margin-bottom: 16px;
+  }
+  .q h2 { font-size: 15px; margin: 0 0 4px; }
+  .q .num { color: var(--accent); margin-right: 6px; }
+  .q .context { color: var(--muted); font-size: 13px; margin: 0 0 12px; }
+  label.opt {
+    display: flex; align-items: flex-start; gap: 10px; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;
+    cursor: pointer;
+  }
+  label.opt:hover { border-color: var(--accent); }
+  label.opt.checked { border-color: var(--accent); background: var(--accent-soft); }
+  label.opt input { margin-top: 3px; accent-color: var(--accent); }
+  .opt .lbl { flex: 1; }
+  .opt .detail { display: block; color: var(--muted); font-size: 13px; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600; color: var(--rec);
+    background: var(--rec-soft); border-radius: 5px; padding: 1px 7px; margin-left: 6px;
+    vertical-align: 1px;
+  }
+  .other-input, textarea.comment, textarea.freeform {
+    width: 100%; background: var(--bg); color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+    font: inherit; font-size: 14px;
+  }
+  .other-input { margin-top: 2px; }
+  textarea.comment, textarea.freeform { resize: vertical; min-height: 38px; margin-top: 8px; }
+  textarea.freeform { min-height: 70px; }
+  .comment-label { font-size: 12px; color: var(--muted); margin-top: 10px; display: block; }
+  dialog {
+    border: 1px solid var(--border); border-radius: 12px; background: var(--card);
+    color: var(--text); max-width: 640px; width: 90%; padding: 20px;
+  }
+  dialog::backdrop { background: rgba(0,0,0,.5); }
+  dialog textarea { width: 100%; min-height: 260px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>__TITLE__</h1>
+  <span class="count" id="count"></span>
+  <button class="copy" id="copyBtn">Copy prompt</button>
+</div>
+<div class="wrap" id="form"></div>
+<dialog id="fallback">
+  <p>Clipboard unavailable — copy manually:</p>
+  <textarea id="fallbackText" class="freeform"></textarea>
+  <p style="text-align:right"><button class="copy" onclick="document.getElementById('fallback').close()">Close</button></p>
+</dialog>
+<script>
+const QUESTIONS = __QUESTIONS_JSON__;
+
+const form = document.getElementById('form');
+
+QUESTIONS.forEach((q, i) => {
+  const card = document.createElement('div');
+  card.className = 'q';
+  const type = q.type || 'single';
+  let html = `<h2><span class="num">${i + 1}.</span>${esc(q.question)}</h2>`;
+  if (q.context) html += `<p class="context">${esc(q.context)}</p>`;
+
+  if (type !== 'text') {
+    const inputType = type === 'multi' ? 'checkbox' : 'radio';
+    (q.options || []).forEach((o, j) => {
+      html += `
+      <label class="opt">
+        <input type="${inputType}" name="q${i}" value="${j}" ${o.recommended ? 'checked' : ''}>
+        <span class="lbl">${esc(o.label)}${o.recommended ? '<span class="badge">Recommended</span>' : ''}
+          ${o.detail ? `<span class="detail">${esc(o.detail)}</span>` : ''}
+        </span>
+      </label>`;
+    });
+    html += `
+      <label class="opt">
+        <input type="${inputType}" name="q${i}" value="other">
+        <span class="lbl">Other:
+          <input type="text" class="other-input" id="other${i}" placeholder="Your own answer…">
+        </span>
+      </label>`;
+    html += `<label class="comment-label">Comment (optional)
+      <textarea class="comment" id="comment${i}"></textarea></label>`;
+  } else {
+    html += `<textarea class="freeform" id="text${i}" placeholder="Your answer…"></textarea>`;
+  }
+  card.innerHTML = html;
+  form.appendChild(card);
+});
+
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function syncStyles() {
+  document.querySelectorAll('label.opt').forEach(l => {
+    const inp = l.querySelector('input[type=radio],input[type=checkbox]');
+    if (inp) l.classList.toggle('checked', inp.checked);
+  });
+  const answered = QUESTIONS.filter((q, i) => {
+    if ((q.type || 'single') === 'text') return document.getElementById(`text${i}`).value.trim();
+    return document.querySelector(`input[name=q${i}]:checked`);
+  }).length;
+  document.getElementById('count').textContent = `${answered}/${QUESTIONS.length} answered`;
+}
+document.addEventListener('input', syncStyles);
+document.addEventListener('change', syncStyles);
+// Typing in the "Other" box selects its option.
+document.querySelectorAll('.other-input').forEach(inp => {
+  inp.addEventListener('input', () => {
+    const opt = inp.closest('label.opt').querySelector('input[name]');
+    if (inp.value.trim() && opt.type === 'radio') opt.checked = true;
+    if (inp.value.trim() && opt.type === 'checkbox') opt.checked = true;
+    syncStyles();
+  });
+});
+syncStyles();
+
+function buildPrompt() {
+  const lines = ['Here are my answers to your questions:', ''];
+  QUESTIONS.forEach((q, i) => {
+    lines.push(`${i + 1}. ${q.question}`);
+    if ((q.type || 'single') === 'text') {
+      lines.push(`   Answer: ${document.getElementById(`text${i}`).value.trim() || '(no answer)'}`);
+    } else {
+      const checked = [...document.querySelectorAll(`input[name=q${i}]:checked`)];
+      const answers = checked.map(c => c.value === 'other'
+        ? (document.getElementById(`other${i}`).value.trim() || '(other — unspecified)')
+        : q.options[+c.value].label);
+      lines.push(`   Answer: ${answers.length ? answers.join('; ') : '(no answer)'}`);
+      const comment = document.getElementById(`comment${i}`).value.trim();
+      if (comment) lines.push(`   Note: ${comment}`);
+    }
+    lines.push('');
+  });
+  return lines.join('\n').trim() + '\n';
+}
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const text = buildPrompt();
+  const btn = document.getElementById('copyBtn');
+  const ok = await copyText(text);
+  if (ok) {
+    btn.textContent = 'Copied ✓'; btn.classList.add('done');
+    setTimeout(() => { btn.textContent = 'Copy prompt'; btn.classList.remove('done'); }, 2000);
+  } else {
+    const ta = document.getElementById('fallbackText');
+    ta.value = text;
+    document.getElementById('fallback').showModal();
+    ta.select();
+  }
+});
+
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); return true; } catch (e) {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch (e) { return false; }
+}
+</script>
+</body>
+</html>
