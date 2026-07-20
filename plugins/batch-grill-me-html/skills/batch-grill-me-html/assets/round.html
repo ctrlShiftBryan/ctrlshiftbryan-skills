@@ -206,6 +206,26 @@
     letter-spacing: .06em;
     text-transform: uppercase;
   }
+  .mockup {
+    margin: 0 0 18px;
+    border: 1px solid var(--line);
+    background: var(--paper-deep);
+    padding: 8px;
+  }
+  .mockup iframe {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  .mockup figcaption {
+    margin-top: 7px;
+    color: var(--muted);
+    font: 700 10px/1.4 "Courier New", monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .option .mockup { grid-column: 2; margin: 0 0 2px; }
   .other-input, .comment, .freeform {
     width: 100%;
     border: 1px solid var(--line);
@@ -339,6 +359,11 @@ QUESTIONS.forEach((q, i) => {
   if (recommendedCount < 1 || (type === 'single' && recommendedCount !== 1)) {
     throw new Error(`Question ${q.id || i + 1} has an invalid recommendation count.`);
   }
+  [q.mockup, ...options.map(option => option.mockup)].forEach(mock => {
+    if (mock !== undefined && (typeof mock !== 'object' || mock === null || typeof mock.html !== 'string' || !mock.html.trim())) {
+      throw new Error(`Question ${q.id || i + 1} has a mockup without an html string.`);
+    }
+  });
 
   const card = document.createElement('section');
   card.className = 'question';
@@ -346,6 +371,7 @@ QUESTIONS.forEach((q, i) => {
   let html = `<p class="question-id">Node ${esc(q.id || `q-${i + 1}`)}</p>`;
   html += `<h2>${esc(q.question)}</h2>`;
   if (q.context) html += `<p class="context">${esc(q.context)}</p>`;
+  if (q.mockup) html += '<span class="mockup-slot" data-mock="question"></span>';
 
   const inputType = type === 'multi' ? 'checkbox' : 'radio';
   html += '<div class="options">';
@@ -354,6 +380,7 @@ QUESTIONS.forEach((q, i) => {
       <input type="${inputType}" name="q${i}" value="${j}" ${option.recommended ? 'checked' : ''}>
       <span class="label">${esc(option.label)}${option.detail ? `<span class="detail">${esc(option.detail)}</span>` : ''}</span>
       ${option.recommended ? '<span class="recommended">Recommended</span>' : ''}
+      ${option.mockup ? `<span class="mockup-slot" data-mock="${j}"></span>` : ''}
     </label>`;
   });
   html += `<label class="option">
@@ -364,8 +391,31 @@ QUESTIONS.forEach((q, i) => {
     <textarea class="comment" id="comment${i}" placeholder="Add nuance, constraints, or context…"></textarea>
   </label>`;
   card.innerHTML = html;
+  card.querySelectorAll('.mockup-slot').forEach(slot => {
+    const mock = slot.dataset.mock === 'question' ? q.mockup : options[Number(slot.dataset.mock)].mockup;
+    slot.replaceWith(mockupFrame(mock));
+  });
   questionsRoot.appendChild(card);
 });
+
+// Mockups render in sandboxed iframes: their CSS and JS stay isolated from the
+// form, and srcdoc is assigned programmatically so no attribute escaping is needed.
+function mockupFrame(mock) {
+  const figure = document.createElement('figure');
+  figure.className = 'mockup';
+  const frame = document.createElement('iframe');
+  frame.setAttribute('sandbox', 'allow-scripts');
+  frame.setAttribute('title', mock.caption || 'Mockup preview');
+  frame.style.height = `${Math.min(720, Math.max(60, Number(mock.height) || 180))}px`;
+  frame.srcdoc = mock.html;
+  figure.appendChild(frame);
+  if (mock.caption) {
+    const caption = document.createElement('figcaption');
+    caption.textContent = mock.caption;
+    figure.appendChild(caption);
+  }
+  return figure;
+}
 
 function esc(value) {
   return String(value).replace(/[&<>\"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[char]));

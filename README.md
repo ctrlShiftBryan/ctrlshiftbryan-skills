@@ -15,7 +15,7 @@ Bryan's personal Claude Code plugins and skills.
 | [`post-review-as-bot`](plugins/post-review-as-bot) | skill | Post a code review to a GitHub PR as inline comments attributed to a GitHub App `[bot]` account — mints an installation token, validates comments against the diff, submits one atomic review. |
 | [`codex-delegation`](plugins/codex-delegation) | skills ×3 | Delegate work to Codex CLI (gpt-5.5) — `codex-implementation` (scoped changes via `codex exec`), `codex-review` (independent diff review), `codex-computer-use` (browser/simulator/screenshot verification). |
 | [`questionnaire`](plugins/questionnaire) | skill | Batch 3+ clarifying questions into a local HTML form — recommended answers pre-checked, per-question comments, and a "Copy prompt" button that serializes everything into one paste-back prompt. |
-| [`batch-grill-me-html`](plugins/batch-grill-me-html) | skill | Conduct a manual, dependency-aware design interview in HTML rounds — each form contains the complete current decision frontier, recommended answers, Plannotator injection, and a paste-back prompt. |
+| [`batch-grill-me-html`](plugins/batch-grill-me-html) | skill | Conduct a manual, dependency-aware design interview in HTML rounds — each form contains the complete current decision frontier, recommended answers, optional sandboxed HTML mockups for visual choices, Plannotator injection, and a paste-back prompt. |
 
 ## Install
 

@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "pr-explainer",
-      "description": "Install the AI PR-explainer GitHub Action into a repository (manual, user-invoked setup). Drops the nag workflow + check/publish scripts, bootstraps an orphan ai-docs branch, enables GitHub Pages, and wires up the repo-specific config so every PR gets a sticky 🔴/🟡/🟢 'explainer' comment + commit-status gate linking an AI-generated HTML walkthrough published to Pages. Invoke explicitly with /pr-explainer:install or by asking to install/set up/add the pr-explainer action — it does not trigger automatically from general PR, CI, or code-review conversation.",
+      "description": "Install the AI PR-explainer GitHub Action into a repository (manual, user-invoked setup). Drops the nag workflow + check/publish scripts, bootstraps an orphan ai-docs branch, enables GitHub Pages, and wires up the repo-specific config so every PR gets a sticky \ud83d\udd34/\ud83d\udfe1/\ud83d\udfe2 'explainer' comment + commit-status gate linking an AI-generated HTML walkthrough published to Pages. Invoke explicitly with /pr-explainer:install or by asking to install/set up/add the pr-explainer action \u2014 it does not trigger automatically from general PR, CI, or code-review conversation.",
       "version": "0.2.0",
       "author": {
         "name": "Bryan Arendt",
@@ -51,7 +51,7 @@
     },
     {
       "name": "review-address",
-      "description": "Reply to every PR review comment — from GitHub Copilot, other review bots, and human reviewers — with code fixes or reasoned push-backs. Fetches all comments via the GitHub API, triages each one, fixes code, commits, and posts an inline reply to every comment. Triggers on 'address the review', 'reply to the comments', 'handle the PR feedback', 'address Copilot's review', 'respond to review comments'.",
+      "description": "Reply to every PR review comment \u2014 from GitHub Copilot, other review bots, and human reviewers \u2014 with code fixes or reasoned push-backs. Fetches all comments via the GitHub API, triages each one, fixes code, commits, and posts an inline reply to every comment. Triggers on 'address the review', 'reply to the comments', 'handle the PR feedback', 'address Copilot's review', 'respond to review comments'.",
       "version": "0.1.0",
       "author": {
         "name": "Bryan Arendt",
@@ -61,7 +61,7 @@
     },
     {
       "name": "figma-fetcher",
-      "description": "Offload Figma MCP read calls to a Haiku-powered sub-agent to cut token cost. Auto-delegates whenever a figma.com URL appears or any Figma read tool (get_design_context, get_screenshot, get_metadata, get_variable_defs, get_code_connect_map) would be called. Fetches all five tools in one shot, caches the result at tmp/figma/{fileKey}__{nodeId}.json plus a sibling .png, and returns a small markdown digest to the main conversation. Read-only — write tools (use_figma, create_new_file, generate_figma_design) stay in the main agent. Requires the official Figma MCP server.",
+      "description": "Offload Figma MCP read calls to a Haiku-powered sub-agent to cut token cost. Auto-delegates whenever a figma.com URL appears or any Figma read tool (get_design_context, get_screenshot, get_metadata, get_variable_defs, get_code_connect_map) would be called. Fetches all five tools in one shot, caches the result at tmp/figma/{fileKey}__{nodeId}.json plus a sibling .png, and returns a small markdown digest to the main conversation. Read-only \u2014 write tools (use_figma, create_new_file, generate_figma_design) stay in the main agent. Requires the official Figma MCP server.",
       "version": "0.1.0",
       "author": {
         "name": "Bryan Arendt",
@@ -81,7 +81,7 @@
     },
     {
       "name": "codex-delegation",
-      "description": "Delegate work to Codex CLI (gpt-5.5) from Claude Code — three skills covering the delegation surface: codex-implementation (scoped code changes via `codex exec`, Claude reviews the diff), codex-review (independent code review of uncommitted changes, branch diffs, or commits via `codex review`), and codex-computer-use (local runtime verification needing browsers, simulators, screenshots, or app launching via `codex exec` with full access). Triggers on 'use codex', 'have gpt-5.5 do it', 'get a codex review', 'have codex verify this in the browser/simulator'.",
+      "description": "Delegate work to Codex CLI (gpt-5.5) from Claude Code \u2014 three skills covering the delegation surface: codex-implementation (scoped code changes via `codex exec`, Claude reviews the diff), codex-review (independent code review of uncommitted changes, branch diffs, or commits via `codex review`), and codex-computer-use (local runtime verification needing browsers, simulators, screenshots, or app launching via `codex exec` with full access). Triggers on 'use codex', 'have gpt-5.5 do it', 'get a codex review', 'have codex verify this in the browser/simulator'.",
       "version": "0.1.0",
       "author": {
         "name": "Bryan Arendt",
@@ -91,7 +91,7 @@
     },
     {
       "name": "questionnaire",
-      "description": "Batch 3+ clarifying questions into a local HTML questionnaire — recommended answers pre-checked, radio/checkbox options with an 'Other' free-text, per-question comment boxes, and a 'Copy prompt' button that serializes all answers into one paste-back prompt. 1-2 questions stay in chat, one per turn; at ~3+ the skill builds the form instead of serial grilling. Triggers on 'ask me your questions', 'what do you need to know', 'make a questionnaire', or whenever several clarifying questions accumulate during planning or grilling.",
+      "description": "Batch 3+ clarifying questions into a local HTML questionnaire \u2014 recommended answers pre-checked, radio/checkbox options with an 'Other' free-text, per-question comment boxes, and a 'Copy prompt' button that serializes all answers into one paste-back prompt. 1-2 questions stay in chat, one per turn; at ~3+ the skill builds the form instead of serial grilling. Triggers on 'ask me your questions', 'what do you need to know', 'make a questionnaire', or whenever several clarifying questions accumulate during planning or grilling.",
       "version": "0.1.0",
       "author": {
         "name": "Bryan Arendt",
@@ -101,8 +101,8 @@
     },
     {
       "name": "batch-grill-me-html",
-      "description": "Run an explicit, dependency-aware design interview in HTML rounds. Maps the problem as a decision tree, researches facts instead of asking the user, opens the complete currently-unblocked frontier in one local form with recommended answers preselected, and repeats until every reachable branch is settled and the user confirms shared understanding. Manual-only; invoke with /batch-grill-me-html or ask to 'batch grill me in HTML'.",
-      "version": "0.1.0",
+      "description": "Run an explicit, dependency-aware design interview in HTML rounds. Maps the problem as a decision tree, researches facts instead of asking the user, opens the complete currently-unblocked frontier in one local form with recommended answers preselected and optional sandboxed HTML mockups for visual decisions, and repeats until every reachable branch is settled and the user confirms shared understanding. Manual-only; invoke with /batch-grill-me-html or ask to 'batch grill me in HTML'.",
+      "version": "0.2.0",
       "author": {
         "name": "Bryan Arendt",
         "github": "ctrlShiftBryan"

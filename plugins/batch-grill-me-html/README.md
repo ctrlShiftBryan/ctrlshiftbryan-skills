@@ -11,6 +11,7 @@ Each form includes:
 - A recommended answer for every question, preselected with concise tradeoffs
 - Radio buttons for single-choice questions and checkboxes for multi-choice questions
 - An `Other` answer and freeform additional-comment box for every question
+- Optional HTML mockups — question-level frames or per-option candidates — rendered in sandboxed iframes so screen/widget designs are chosen visually, with their CSS/JS isolated from the form
 - The decisions already settled, so the round has context
 - Runtime prerequisite validation that rejects same-round and otherwise unsettled dependencies
 - An answered counter and a top-level **Copy prompt** button that copies all answers and additional comments as one paste-back prompt

@@ -32,6 +32,22 @@
         "The questions treat the supplied infrastructure and job-execution details as settled facts and avoid downstream details whose prerequisites are still unresolved.",
         "The run does not implement the design and clearly stops for the user to paste answers back."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Use batch-grill-me-html to stress-test the design of a usage-and-limits widget for our SaaS settings page. Known facts: the app is Next.js with a REST API; usage counters (API calls, seats, storage) already exist in PostgreSQL and are queryable per tenant; the settings page has a fixed two-column layout with an empty slot in the left column reserved for this widget; plans have hard caps and the design system uses system-ui fonts with a teal accent. We need to decide the widget's visual shape, which metrics it surfaces, how over-limit states appear, and whether it deep-links to billing. This is a visual/layout decision, so show the candidate widget designs as mockups. Build and open only the first dependency-valid HTML frontier, then stop and wait for my pasted answers. Do not implement anything.",
+      "expected_output": "A round-1 HTML form whose visual questions carry sandboxed-iframe HTML mockups (question-level frame and/or per-option candidates), plus the standard frontier/handoff behavior.",
+      "files": [],
+      "assertions": [
+        "The run produces a non-empty HTML artifact for the first interview round.",
+        "The HTML head contains the exact Plannotator script tag https://ctrlshiftbryan.github.io/plannotator-inject/inject.js.",
+        "At least one question or option includes a mockup rendered by the template's sandboxed-iframe mechanism (mockup objects with an html string in the questions data).",
+        "Every mockup's HTML is self-contained: no external script/link/img/font URLs inside mockup content, and the questions JSON is serialized without a literal </script> sequence.",
+        "Option labels for mockup-bearing options still stand alone as text, and the Copy prompt output remains text-only while including all selections, Other values, and comments.",
+        "Every single-choice question has exactly one preselected recommended answer and every multi-choice question has at least one preselected recommended answer, and every question includes an Other option and an Additional comments box.",
+        "Every rendered question is on the true dependency frontier: supplied facts are settled and not re-asked, and no question depends on another question in the same round.",
+        "Both the visible page and the exact final response tell the user to complete the round, click Copy prompt, and paste the copied prompt back into this chat, and no implementation work occurs."
+      ]
     }
   ]
 }

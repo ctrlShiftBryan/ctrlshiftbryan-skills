@@ -69,6 +69,19 @@ Render `single` questions as radio buttons and `multi` questions as checkboxes. 
 
 Do not hide behind "it depends." State a recommendation, expose the tradeoff, and let the user decide.
 
+### Show visual decisions as mockups
+
+Some decisions are visual or spatial: screen layouts, widget designs, navigation placement, empty states, chart shapes. Text labels underdescribe these — the user ends up choosing between sentences when they should be choosing between pictures. For those decisions, attach an optional `mockup` — `{ "html": "...", "height": 220, "caption": "..." }` — at either level:
+
+- On the **question**, to show the current state or the frame being decided (a wireframe of the settings page whose new widget you're asking about).
+- On each **option**, to show that candidate concretely (layout A vs layout B as small rendered mockups the user can compare and, when they include JS, interact with).
+
+Mockup HTML must be completely self-contained: inline CSS and JS only, no external images, fonts, stylesheets, or network requests, because the form opens from `file://` and may be viewed offline. Keep each mockup small and representative — a few dozen elements that communicate the idea, not a pixel-perfect build. `height` is the rendered pixel height (default 180, clamped 60–720).
+
+The template renders mockups in sandboxed iframes, so their styles and scripts cannot interfere with the form — and clicks inside a mockup do not select its option; selection stays on the radio or checkbox. Because the copied prompt is text-only, every option's `label` must still stand on its own without the picture.
+
+Use mockups only where seeing beats reading. A storage-engine choice gains nothing from a drawing; a dashboard-layout choice is barely answerable without one.
+
 ### Audit dependencies before rendering
 
 A frontier is valid only when every question's prerequisites were settled before the round began. A prerequisite asked elsewhere in the same round is still unsettled and makes the round invalid.
@@ -134,7 +147,7 @@ Example question data:
 ]
 ```
 
-JSON-encode all substituted values. Do not allow the literal string `</script>` in inserted content because it would terminate the template's inline script.
+JSON-encode all substituted values. Do not allow the literal string `</script>` in inserted content because it would terminate the template's inline script. Mockup HTML makes this easy to violate accidentally, so serialize `__QUESTIONS_JSON__` with `<`, `>`, and `&` escaped as `\u003c`, `\u003e`, and `\u0026` (for example `json.dumps(questions).replace('<', '\\u003c').replace('>', '\\u003e')` after escaping `&`); the JSON decodes to identical strings at runtime and the HTML parser never sees a closing tag.
 
 Write the result to `/tmp/batch-grill-me-html-<topic-slug>-round-<n>.html` and open it with the platform's local file opener (`open` on macOS, `xdg-open` on Linux). If opening is unavailable, give the user the path.
 
