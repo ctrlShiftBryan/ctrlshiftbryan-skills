@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__ — round __ROUND__</title>
+<script src="https://ctrlshiftbryan.github.io/plannotator-inject/inject.js"></script>
+<style>
+  :root {
+    --paper: #f1eadc;
+    --paper-deep: #e6dbc8;
+    --ink: #171713;
+    --muted: #696457;
+    --line: #b8ad99;
+    --card: rgba(255, 252, 245, .82);
+    --signal: #e74d2f;
+    --signal-soft: #f8d8ca;
+    --cyan: #087f8c;
+    --cyan-soft: #d4eaE8;
+    --focus: #005fcc;
+    --shadow: 6px 7px 0 rgba(23, 23, 19, .13);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #171814;
+      --paper-deep: #22231d;
+      --ink: #f3eddf;
+      --muted: #aaa493;
+      --line: #565347;
+      --card: rgba(35, 36, 30, .9);
+      --signal: #ff765b;
+      --signal-soft: #542d26;
+      --cyan: #74d4dc;
+      --cyan-soft: #193d40;
+      --focus: #88bfff;
+      --shadow: 6px 7px 0 rgba(0, 0, 0, .3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      linear-gradient(rgba(23, 23, 19, .035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(23, 23, 19, .035) 1px, transparent 1px),
+      var(--paper);
+    background-size: 24px 24px;
+    font: 16px/1.55 Georgia, "Times New Roman", serif;
+  }
+  button, input, textarea { font: inherit; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(9px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .masthead-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    min-height: 74px;
+    padding: 13px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .mark {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--ink);
+    display: grid;
+    place-items: center;
+    background: var(--signal);
+    color: #fff8ed;
+    font: 700 20px/1 "Courier New", monospace;
+    transform: rotate(-2deg);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .title-block { flex: 1; min-width: 0; }
+  .eyebrow {
+    margin: 0 0 1px;
+    color: var(--signal);
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  h1 { margin: 0; font-size: clamp(19px, 3vw, 27px); line-height: 1.05; }
+  .count {
+    color: var(--muted);
+    font: 700 12px/1.2 "Courier New", monospace;
+    white-space: nowrap;
+  }
+  .copy {
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    padding: 10px 14px;
+    color: #fff8ed;
+    background: var(--ink);
+    cursor: pointer;
+    font: 700 12px/1.2 "Courier New", monospace;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    box-shadow: 3px 3px 0 var(--signal);
+  }
+  .copy:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--signal); }
+  .copy.done { background: var(--cyan); box-shadow: 3px 3px 0 var(--ink); }
+  main { max-width: 980px; margin: 0 auto; padding: 44px 24px 90px; }
+  .brief {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(230px, .7fr);
+    gap: 22px;
+    margin-bottom: 34px;
+  }
+  .brief-copy { border-top: 5px solid var(--signal); padding-top: 17px; }
+  .kicker {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .brief-copy p:last-child { margin: 0; font-size: clamp(21px, 3vw, 32px); line-height: 1.18; }
+  .settled {
+    border: 1px solid var(--line);
+    background: var(--card);
+    padding: 16px;
+  }
+  .settled h2 {
+    margin: 0 0 11px;
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .settled ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .settled .empty { color: var(--muted); font-size: 13px; font-style: italic; }
+  .handoff {
+    margin: -8px 0 28px;
+    border-left: 5px solid var(--cyan);
+    background: var(--cyan-soft);
+    padding: 13px 16px;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .handoff strong {
+    color: var(--cyan);
+    font: 700 12px/1.3 "Courier New", monospace;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .question {
+    position: relative;
+    border: 2px solid var(--ink);
+    background: var(--card);
+    margin-bottom: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .question::before {
+    content: attr(data-number);
+    position: absolute;
+    left: -13px;
+    top: -13px;
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--ink);
+    background: var(--signal);
+    color: #fff8ed;
+    font: 700 13px/1 "Courier New", monospace;
+  }
+  .question-id {
+    margin: 0 0 7px;
+    color: var(--cyan);
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+  }
+  .question h2 { margin: 0 0 7px; font-size: clamp(20px, 3vw, 27px); line-height: 1.2; }
+  .context { max-width: 760px; margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+  .options { display: grid; gap: 9px; }
+  .option {
+    display: grid;
+    grid-template-columns: 21px 1fr auto;
+    align-items: start;
+    gap: 11px;
+    border: 1px solid var(--line);
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+  }
+  .option:hover { border-color: var(--ink); transform: translateX(2px); }
+  .option.checked { border-color: var(--cyan); background: var(--cyan-soft); }
+  .option input { margin-top: 4px; accent-color: var(--cyan); }
+  .label { font-weight: 700; }
+  .detail { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .recommended {
+    color: var(--signal);
+    font: 700 10px/1.3 "Courier New", monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .other-input, .comment, .freeform {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 10px 11px;
+  }
+  .other-input { margin-top: 9px; }
+  .comment-label { display: block; margin-top: 15px; color: var(--muted); font-size: 12px; }
+  .comment { min-height: 56px; margin-top: 5px; resize: vertical; }
+  .freeform { min-height: 120px; resize: vertical; }
+  dialog {
+    width: min(680px, calc(100% - 32px));
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 10px 10px 0 var(--signal);
+    padding: 22px;
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, .62); }
+  dialog textarea { width: 100%; min-height: 290px; }
+  .dialog-actions { text-align: right; margin-top: 12px; }
+  @media (max-width: 720px) {
+    .masthead-inner { flex-wrap: wrap; }
+    .title-block { min-width: calc(100% - 70px); }
+    .count { margin-left: 66px; }
+    .copy { margin-left: auto; }
+    .brief { grid-template-columns: 1fr; }
+    .question { padding: 21px 17px; }
+    .option { grid-template-columns: 21px 1fr; }
+    .recommended { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .question { animation: arrive 360ms ease both; }
+    .question:nth-child(2) { animation-delay: 70ms; }
+    .question:nth-child(3) { animation-delay: 140ms; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(9px); } }
+  }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="mark" aria-hidden="true">R__ROUND__</div>
+    <div class="title-block">
+      <p class="eyebrow">Decision frontier / round __ROUND__</p>
+      <h1>__TITLE__</h1>
+    </div>
+    <span class="count" id="count" aria-live="polite"></span>
+    <button class="copy" id="copyBtn" type="button">Copy prompt</button>
+  </div>
+</header>
+
+<main>
+  <section class="brief" aria-label="Round briefing">
+    <div class="brief-copy">
+      <p class="kicker">What this frontier settles</p>
+      <p id="topic"></p>
+    </div>
+    <aside class="settled">
+      <h2>Already established</h2>
+      <div id="settled"></div>
+    </aside>
+  </section>
+  <p class="handoff"><strong>How to continue</strong><br>Complete this round, click <b>Copy prompt</b>, then paste the copied prompt back into this chat. Your answers will unlock the next decision frontier.</p>
+  <div id="questions"></div>
+</main>
+
+<dialog id="fallback">
+  <p><strong>Clipboard access is unavailable.</strong> Copy this text manually:</p>
+  <textarea id="fallbackText" class="freeform"></textarea>
+  <div class="dialog-actions"><button class="copy" id="closeDialog" type="button">Close</button></div>
+</dialog>
+
+<script>
+const ROUND = __ROUND__;
+const TOPIC = __TOPIC__;
+const SETTLED = __SETTLED_JSON__;
+const SETTLED_IDS = new Set(__SETTLED_IDS_JSON__);
+const QUESTIONS = __QUESTIONS_JSON__;
+
+const questionsRoot = document.getElementById('questions');
+document.getElementById('topic').textContent = TOPIC;
+
+const settledRoot = document.getElementById('settled');
+if (SETTLED.length) {
+  const list = document.createElement('ul');
+  SETTLED.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    list.appendChild(li);
+  });
+  settledRoot.appendChild(list);
+} else {
+  settledRoot.innerHTML = '<span class="empty">First frontier — nothing settled yet.</span>';
+}
+
+const FRONTIER_IDS = new Set(QUESTIONS.map(question => question.id));
+if (FRONTIER_IDS.size !== QUESTIONS.length) {
+  throw new Error('Every frontier question must have a unique stable ID.');
+}
+
+QUESTIONS.forEach((q, i) => {
+  if (!Array.isArray(q.prerequisites)) {
+    throw new Error(`Question ${q.id || i + 1} must declare a prerequisites array.`);
+  }
+  const sameRoundPrerequisites = q.prerequisites.filter(id => FRONTIER_IDS.has(id));
+  const unsettledPrerequisites = q.prerequisites.filter(id => !SETTLED_IDS.has(id));
+  if (sameRoundPrerequisites.length) {
+    throw new Error(
+      `Question ${q.id || i + 1} depends on same-round question(s): ${sameRoundPrerequisites.join(', ')}.`
+    );
+  }
+  if (unsettledPrerequisites.length) {
+    throw new Error(
+      `Question ${q.id || i + 1} has unsettled prerequisite(s): ${unsettledPrerequisites.join(', ')}.`
+    );
+  }
+
+  const type = q.type || 'single';
+  const options = q.options || [];
+  const recommendedCount = options.filter(option => option.recommended).length;
+  if (!['single', 'multi'].includes(type)) {
+    throw new Error(`Question ${q.id || i + 1} must use type "single" or "multi".`);
+  }
+  if (!options.length) {
+    throw new Error(`Question ${q.id || i + 1} must define concrete options.`);
+  }
+  if (recommendedCount < 1 || (type === 'single' && recommendedCount !== 1)) {
+    throw new Error(`Question ${q.id || i + 1} has an invalid recommendation count.`);
+  }
+
+  const card = document.createElement('section');
+  card.className = 'question';
+  card.dataset.number = String(i + 1).padStart(2, '0');
+  let html = `<p class="question-id">Node ${esc(q.id || `q-${i + 1}`)}</p>`;
+  html += `<h2>${esc(q.question)}</h2>`;
+  if (q.context) html += `<p class="context">${esc(q.context)}</p>`;
+
+  const inputType = type === 'multi' ? 'checkbox' : 'radio';
+  html += '<div class="options">';
+  options.forEach((option, j) => {
+    html += `<label class="option">
+      <input type="${inputType}" name="q${i}" value="${j}" ${option.recommended ? 'checked' : ''}>
+      <span class="label">${esc(option.label)}${option.detail ? `<span class="detail">${esc(option.detail)}</span>` : ''}</span>
+      ${option.recommended ? '<span class="recommended">Recommended</span>' : ''}
+    </label>`;
+  });
+  html += `<label class="option">
+    <input type="${inputType}" name="q${i}" value="other">
+    <span class="label">Other<input class="other-input" id="other${i}" type="text" placeholder="Your answer…"></span>
+  </label></div>`;
+  html += `<label class="comment-label">Additional comments (optional)
+    <textarea class="comment" id="comment${i}" placeholder="Add nuance, constraints, or context…"></textarea>
+  </label>`;
+  card.innerHTML = html;
+  questionsRoot.appendChild(card);
+});
+
+function esc(value) {
+  return String(value).replace(/[&<>\"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[char]));
+}
+
+function syncState() {
+  document.querySelectorAll('.option').forEach(label => {
+    const input = label.querySelector('input[type=radio], input[type=checkbox]');
+    if (input) label.classList.toggle('checked', input.checked);
+  });
+  const answered = QUESTIONS.filter((q, i) => {
+    return document.querySelector(`input[name=q${i}]:checked`);
+  }).length;
+  document.getElementById('count').textContent = `${answered}/${QUESTIONS.length} answered`;
+}
+
+document.addEventListener('input', syncState);
+document.addEventListener('change', syncState);
+document.querySelectorAll('.other-input').forEach(input => {
+  input.addEventListener('input', () => {
+    const choice = input.closest('.option').querySelector('input[name]');
+    if (input.value.trim()) choice.checked = true;
+    syncState();
+  });
+});
+syncState();
+
+function buildPrompt() {
+  const lines = [`Batch grill me HTML — round ${ROUND} answers`, ''];
+  QUESTIONS.forEach((q, i) => {
+    lines.push(`${i + 1}. [${q.id || `q-${i + 1}`}] ${q.question}`);
+    const checked = [...document.querySelectorAll(`input[name=q${i}]:checked`)];
+    const answers = checked.map(choice => choice.value === 'other'
+      ? (document.getElementById(`other${i}`).value.trim() || '(other — unspecified)')
+      : q.options[Number(choice.value)].label);
+    lines.push(`   Answer: ${answers.length ? answers.join('; ') : '(no answer)'}`);
+    const comment = document.getElementById(`comment${i}`).value.trim();
+    if (comment) lines.push(`   Additional comment: ${comment}`);
+    lines.push('');
+  });
+  lines.push('Update the design tree from these answers, incorporate any completed research, then recompute and open the next frontier.');
+  return lines.join('\n').trim() + '\n';
+}
+
+async function copyText(value) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch (error) {}
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    return copied;
+  } catch (error) {
+    return false;
+  }
+}
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const value = buildPrompt();
+  const button = document.getElementById('copyBtn');
+  if (await copyText(value)) {
+    button.textContent = 'Copied';
+    button.classList.add('done');
+    window.setTimeout(() => {
+      button.textContent = 'Copy prompt';
+      button.classList.remove('done');
+    }, 1800);
+    return;
+  }
+  const fallback = document.getElementById('fallback');
+  const textarea = document.getElementById('fallbackText');
+  textarea.value = value;
+  fallback.showModal();
+  textarea.select();
+});
+
+document.getElementById('closeDialog').addEventListener('click', () => {
+  document.getElementById('fallback').close();
+});
+</script>
+</body>
+</html>

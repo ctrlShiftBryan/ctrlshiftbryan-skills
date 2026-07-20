@@ -98,6 +98,16 @@
         "github": "ctrlShiftBryan"
       },
       "source": "./plugins/questionnaire"
+    },
+    {
+      "name": "batch-grill-me-html",
+      "description": "Run an explicit, dependency-aware design interview in HTML rounds. Maps the problem as a decision tree, researches facts instead of asking the user, opens the complete currently-unblocked frontier in one local form with recommended answers preselected, and repeats until every reachable branch is settled and the user confirms shared understanding. Manual-only; invoke with /batch-grill-me-html or ask to 'batch grill me in HTML'.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/batch-grill-me-html"
     }
   ]
 }

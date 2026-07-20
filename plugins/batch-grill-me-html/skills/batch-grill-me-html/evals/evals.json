@@ -1,0 +1,37 @@
+{
+  "skill_name": "batch-grill-me-html",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Use batch-grill-me-html to stress-test the design of account recovery for a multi-tenant SaaS. Known facts: the app uses Next.js, PostgreSQL, email/password authentication, and has no mobile client; organization admins can currently suspend members but cannot reset their credentials. We need to decide recovery channels, identity evidence, rate limits, audit behavior, and whether support can override recovery. Build and open only the first dependency-valid HTML frontier, then stop and wait for my pasted answers. Do not implement anything.",
+      "expected_output": "A first-round account-recovery HTML form containing only currently unblocked decisions, with recommended single- and multi-choice answers, per-question comments, Plannotator injection, and a Copy prompt interaction.",
+      "files": [],
+      "expectations": [
+        "The run produces a non-empty HTML artifact for the first interview round.",
+        "The HTML head contains the exact Plannotator script tag https://ctrlshiftbryan.github.io/plannotator-inject/inject.js.",
+        "A top-of-page button labeled Copy prompt aggregates all selected answers, Other values, and non-empty additional comments into one clipboard prompt with a fallback.",
+        "The form supports both single-choice radio buttons and multi-choice checkboxes, and the round uses only single or multi question types.",
+        "Every single-choice question has exactly one preselected recommended answer and every multi-choice question has at least one preselected recommended answer.",
+        "Every question includes an Other option and a freeform Additional comments box.",
+        "The questions treat the supplied stack and product details as settled facts and avoid downstream details whose prerequisites are still unresolved.",
+        "The run does not implement the design and clearly stops for the user to paste answers back."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Run batch-grill-me-html on a redesign of our background-job retry policy. Known facts: jobs are stored in PostgreSQL, workers run on Kubernetes, every job belongs to a tenant, duplicate execution is possible today, and some handlers call paid third-party APIs. We need a shared understanding of retry eligibility, backoff, idempotency expectations, tenant fairness, dead-letter handling, and operator controls. Produce the first HTML question round only; do not choose downstream policy details before their prerequisites are answered, and do not start implementation.",
+      "expected_output": "A first-round job-retry HTML form that separates known facts from user decisions, asks the whole current frontier without dependency violations, and includes the required choice, recommendation, comment, copy, and injection behavior.",
+      "files": [],
+      "expectations": [
+        "The run produces a non-empty HTML artifact for the first interview round.",
+        "The HTML head contains the exact Plannotator script tag https://ctrlshiftbryan.github.io/plannotator-inject/inject.js.",
+        "A top-of-page button labeled Copy prompt aggregates all selected answers, Other values, and non-empty additional comments into one clipboard prompt with a fallback.",
+        "The form supports both single-choice radio buttons and multi-choice checkboxes, and the round uses only single or multi question types.",
+        "Every single-choice question has exactly one preselected recommended answer and every multi-choice question has at least one preselected recommended answer.",
+        "Every question includes an Other option and a freeform Additional comments box.",
+        "The questions treat the supplied infrastructure and job-execution details as settled facts and avoid downstream details whose prerequisites are still unresolved.",
+        "The run does not implement the design and clearly stops for the user to paste answers back."
+      ]
+    }
+  ]
+}
