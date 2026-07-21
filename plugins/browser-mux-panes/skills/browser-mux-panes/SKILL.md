@@ -10,18 +10,27 @@ description: >
 
 # Reading a browser-mux pane from its `bm-pane:` token
 
-browser-mux repo location: `~/code2/browser-mux` (edit here if it moves).
-
 Every browser-mux pane runs in its own tmux server. A `bm-pane:<paneId>`
 token is enough to find everything about it.
 
+The resolver is the `bm-pane` bin, which the browser-mux server registers
+globally (`bun link` → `~/.bun/bin/bm-pane`) on every boot — no assumption
+about where the repo lives.
+
 ## Steps
 
-1. Resolve the token:
+1. Resolve the token (first form that exists wins — `~/.bun/bin` is often
+   not on PATH):
 
    ```bash
-   bun ~/code2/browser-mux/scripts/pane_info.ts bm-pane:<paneId>
+   bm-pane bm-pane:<paneId>
+   ~/.bun/bin/bm-pane bm-pane:<paneId>
    ```
+
+   If neither exists, run `bun link` once inside the browser-mux repo (its
+   registered location: `readlink ~/.bun/install/global/node_modules/browser-mux`),
+   or fall back to tmux-only reading (step 2 — socket and session derive
+   from the id alone: `browser-mux-pane-<id>` / `pane-<id>`).
 
    Returns JSON:
    - `tmux.captureCommand` — ready-to-run command for the live screen +
