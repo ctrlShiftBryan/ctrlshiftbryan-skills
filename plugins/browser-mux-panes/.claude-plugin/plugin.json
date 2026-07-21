@@ -1,0 +1,9 @@
+{
+  "name": "browser-mux-panes",
+  "version": "0.1.0",
+  "description": "Resolve a bm-pane:<paneId> token copied from a browser-mux pane header into that pane's live terminal contents or agent transcript, so one agent session can read another pane.",
+  "author": {
+    "name": "Bryan Arendt",
+    "github": "ctrlShiftBryan"
+  }
+}

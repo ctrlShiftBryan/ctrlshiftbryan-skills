@@ -108,6 +108,16 @@
         "github": "ctrlShiftBryan"
       },
       "source": "./plugins/batch-grill-me-html"
+    },
+    {
+      "name": "browser-mux-panes",
+      "description": "Resolve a bm-pane:<paneId> token copied from a browser-mux pane header into that pane's live terminal contents (tmux capture) or agent transcript (Claude session jsonl / Codex rollout), so one agent session can read another pane. Triggers on any bm-pane: token or 'read my other pane/terminal' in browser-mux.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/browser-mux-panes"
     }
   ]
 }
