@@ -58,3 +58,8 @@ ctrlshiftbryan-skills/
 2. Write `.claude-plugin/plugin.json` (name, version, description, author).
 3. Add `commands/`, `skills/`, `agents/`, `scripts/`, `assets/` as needed.
 4. Add an entry to `.claude-plugin/marketplace.json` under `plugins[]`.
+
+**Public skills only.** A skill that needs a specific app installed — its CLIs,
+its server, its repo layout — belongs in that app's own repo, not here. Example:
+the `bm-*` browser-mux skills live in the private `ctrlShiftBryan/browser-mux`
+repo under `skills/` and install with `npx skills add` from there.
