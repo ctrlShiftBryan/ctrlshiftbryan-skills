@@ -112,6 +112,8 @@ Read `assets/round.html` from this skill's directory and replace every placehold
 - `__SETTLED_JSON__`: a JSON array of concise settled-decision strings, or `[]`
 - `__SETTLED_IDS_JSON__`: a JSON array of decision IDs settled before this round, or `[]`
 - `__QUESTIONS_JSON__`: the complete frontier as JSON
+- `__TARGET_PANE_JSON__`: the pane this session runs in, as a JSON string, when
+  the environment variable `BMUX_PANE_ID` is set; otherwise the literal `null`
 
 Ensure every generated form includes this exact script tag in its HTML `<head>`:
 
@@ -155,21 +157,27 @@ The top of the page must contain a **Copy prompt** button. It must aggregate eve
 
 The form must visibly tell the user to complete the round, click **Copy prompt**, and paste the copied prompt back into this chat. Do not rely on the button label or clipboard contents to imply the handoff.
 
+### Direct hand-back inside browser-mux
+
+When `BMUX_PANE_ID` is set, the form is rendered in a browser-mux web pane beside this session, and the round can come back without the clipboard. The template then reveals two more buttons — **Send to agent**, which submits the answers as the next turn, and **Prefill composer**, which stages them in the prompt box for editing — and closes its own pane once either lands. Both call `window.parent.bmuxArtifact.submitPrompt`, which only same-origin pages can reach; anywhere else the buttons stay hidden and **Copy prompt** is the whole handoff.
+
+Fill `__TARGET_PANE_JSON__` with that pane id so the buttons appear. Keep **Copy prompt** in every form regardless: it is the fallback when delivery fails.
+
 End every round with this exact response structure, filling in the round number:
 
-> Round `<n>` is open. Complete the form, click **Copy prompt**, and paste it back into this chat. I'll use your answers to update the design tree and open the next frontier.
+> Round `<n>` is open. Complete the form, then **Send to agent** (or **Copy prompt** and paste it back into this chat). I'll use your answers to update the design tree and open the next frontier.
 
 Do not ask more questions while that form is pending.
 
-## 6. Process the paste-back
+## 6. Process the returned round
 
-The form returns stable question IDs, selected labels, and optional `Additional comment:` lines.
+The round arrives as one prompt — sent by the form's own button or pasted by the user — carrying stable question IDs, selected labels, and optional `Additional comment:` lines.
 
 - Treat an additional comment as authoritative when it conflicts with a selected option.
 - Treat `(no answer)` as deferred, not settled. Carry that decision into the next frontier and say why it remains open.
 - If the answer introduces a new branch, add it to the tree.
 - If the answer makes a branch irrelevant, prune it explicitly.
-- Ask a chat follow-up only when the pasted answer is internally contradictory and cannot be resolved from context.
+- Ask a chat follow-up only when the returned answer is internally contradictory and cannot be resolved from context.
 
 Then incorporate completed research, recompute the frontier, and open the next HTML round.
 
