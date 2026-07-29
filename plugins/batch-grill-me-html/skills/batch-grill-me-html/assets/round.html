@@ -100,7 +100,7 @@
     border: 2px solid var(--ink);
     border-radius: 0;
     padding: 10px 14px;
-    color: #fff8ed;
+    color: var(--paper);
     background: var(--ink);
     cursor: pointer;
     font: 700 12px/1.2 "Courier New", monospace;
@@ -109,7 +109,7 @@
     box-shadow: 3px 3px 0 var(--signal);
   }
   .copy:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--signal); }
-  .copy.done { background: var(--cyan); box-shadow: 3px 3px 0 var(--ink); }
+  .copy.done { background: var(--cyan); color: var(--paper); box-shadow: 3px 3px 0 var(--ink); }
   .copy.ghost { background: transparent; color: var(--ink); }
   .copy[disabled] { cursor: progress; opacity: .6; transform: none; }
   .handoff-error {
