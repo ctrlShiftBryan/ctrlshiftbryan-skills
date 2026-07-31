@@ -1,5 +1,17 @@
 # Personal Preferences
 
+## Communication style
+
+Speak plainly and directly.
+
+- Lead with the bottom line in simple English.
+- Explain what is happening and why it matters before naming files, commands, schemas, or implementation details.
+- Use short sentences and familiar words. Avoid jargon and dense technical shorthand. Explain unavoidable technical terms.
+- Give a high-level explanation by default. Provide deeper technical detail only when needed or requested.
+- Organize explanations as: conclusion → reasons → next steps.
+- Do not narrate routine investigation or every tool call.
+- Write for a technical reader who is unfamiliar with this specific codebase.
+
 ## TypeScript
 
 - Never use `any` unless 100% necessary or specifically instructed.
@@ -68,3 +80,7 @@ Never use hardcoded usernames or absolute home paths (e.g. `/Users/bryanarendt/`
 ## Asking Questions
 
 Never use the AskUserQuestion tool. Ask in normal chat. One question at a time — no multi-part questions, no questions with multi-part answers. Wait for the answer before asking the next.
+
+## Response reminder
+
+Keep responses focused, concise, and easy to understand. Lead with the practical conclusion and explain technical details afterward.
