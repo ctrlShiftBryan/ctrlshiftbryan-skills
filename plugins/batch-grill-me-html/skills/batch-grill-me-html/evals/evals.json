@@ -8,7 +8,6 @@
       "files": [],
       "expectations": [
         "The run produces a non-empty HTML artifact for the first interview round.",
-        "The HTML head contains the exact Plannotator script tag https://ctrlshiftbryan.github.io/plannotator-inject/inject.js.",
         "A top-of-page button labeled Copy prompt aggregates all selected answers, Other values, and non-empty additional comments into one clipboard prompt with a fallback.",
         "The form supports both single-choice radio buttons and multi-choice checkboxes, and the round uses only single or multi question types.",
         "Every single-choice question has exactly one preselected recommended answer and every multi-choice question has at least one preselected recommended answer.",
@@ -24,7 +23,6 @@
       "files": [],
       "expectations": [
         "The run produces a non-empty HTML artifact for the first interview round.",
-        "The HTML head contains the exact Plannotator script tag https://ctrlshiftbryan.github.io/plannotator-inject/inject.js.",
         "A top-of-page button labeled Copy prompt aggregates all selected answers, Other values, and non-empty additional comments into one clipboard prompt with a fallback.",
         "The form supports both single-choice radio buttons and multi-choice checkboxes, and the round uses only single or multi question types.",
         "Every single-choice question has exactly one preselected recommended answer and every multi-choice question has at least one preselected recommended answer.",
@@ -40,7 +38,6 @@
       "files": [],
       "assertions": [
         "The run produces a non-empty HTML artifact for the first interview round.",
-        "The HTML head contains the exact Plannotator script tag https://ctrlshiftbryan.github.io/plannotator-inject/inject.js.",
         "At least one question or option includes a mockup rendered by the template's sandboxed-iframe mechanism (mockup objects with an html string in the questions data).",
         "Every mockup's HTML is self-contained: no external script/link/img/font URLs inside mockup content, and the questions JSON is serialized without a literal </script> sequence.",
         "Option labels for mockup-bearing options still stand alone as text, and the Copy prompt output remains text-only while including all selections, Other values, and comments.",

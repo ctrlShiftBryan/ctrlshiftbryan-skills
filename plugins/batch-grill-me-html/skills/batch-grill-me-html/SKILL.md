@@ -115,13 +115,7 @@ Read `assets/round.html` from this skill's directory and replace every placehold
 - `__TARGET_PANE_JSON__`: the pane this session runs in, as a JSON string, when
   the environment variable `BMUX_PANE_ID` is set; otherwise the literal `null`
 
-Ensure every generated form includes this exact script tag in its HTML `<head>`:
-
-```html
-<script src="https://ctrlshiftbryan.github.io/plannotator-inject/inject.js"></script>
-```
-
-The bundled template already contains it. Preserve the tag when filling or adapting the template. The template also rejects a question when its prerequisites are missing, unsettled, or present in the same frontier; do not remove or bypass that validation.
+The template rejects a question when its prerequisites are missing, unsettled, or present in the same frontier; do not remove or bypass that validation.
 
 Example question data:
 
