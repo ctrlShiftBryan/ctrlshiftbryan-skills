@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__ — pass __PASS__</title>
+<style>
+  :root {
+    --paper: #f1eadc;
+    --paper-deep: #e6dbc8;
+    --ink: #171713;
+    --muted: #696457;
+    --line: #b8ad99;
+    --card: rgba(255, 252, 245, .82);
+    --signal: #e74d2f;
+    --signal-soft: #f8d8ca;
+    --cyan: #087f8c;
+    --cyan-soft: #d4eaE8;
+    --amber: #8a6a00;
+    --amber-soft: #f5e8bd;
+    --focus: #005fcc;
+    --shadow: 6px 7px 0 rgba(23, 23, 19, .13);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #171814;
+      --paper-deep: #22231d;
+      --ink: #f3eddf;
+      --muted: #aaa493;
+      --line: #565347;
+      --card: rgba(35, 36, 30, .9);
+      --signal: #ff765b;
+      --signal-soft: #542d26;
+      --cyan: #74d4dc;
+      --cyan-soft: #193d40;
+      --amber: #e8c664;
+      --amber-soft: #453a12;
+      --focus: #88bfff;
+      --shadow: 6px 7px 0 rgba(0, 0, 0, .3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background:
+      linear-gradient(rgba(23, 23, 19, .035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(23, 23, 19, .035) 1px, transparent 1px),
+      var(--paper);
+    background-size: 24px 24px;
+    font: 16px/1.55 Georgia, "Times New Roman", serif;
+  }
+  button, input, textarea { font: inherit; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .masthead {
+    border-bottom: 2px solid var(--ink);
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(9px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .masthead-inner {
+    max-width: 980px;
+    margin: 0 auto;
+    min-height: 74px;
+    padding: 13px 24px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .mark {
+    width: 48px;
+    height: 48px;
+    border: 2px solid var(--ink);
+    display: grid;
+    place-items: center;
+    background: var(--signal);
+    color: #fff8ed;
+    font: 700 15px/1 "Courier New", monospace;
+    transform: rotate(-2deg);
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .title-block { flex: 1; min-width: 0; }
+  .eyebrow {
+    margin: 0 0 1px;
+    color: var(--signal);
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  h1 { margin: 0; font-size: clamp(19px, 3vw, 27px); line-height: 1.05; }
+  .count {
+    color: var(--muted);
+    font: 700 12px/1.2 "Courier New", monospace;
+    white-space: nowrap;
+    text-align: right;
+  }
+  .count .impacted-count { color: var(--signal); }
+  .copy {
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    padding: 10px 14px;
+    color: var(--paper);
+    background: var(--ink);
+    cursor: pointer;
+    font: 700 12px/1.2 "Courier New", monospace;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    box-shadow: 3px 3px 0 var(--signal);
+  }
+  .copy:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--signal); }
+  .copy.done { background: var(--cyan); color: var(--paper); box-shadow: 3px 3px 0 var(--ink); }
+  .copy.ghost { background: transparent; color: var(--ink); }
+  .copy[disabled] { cursor: progress; opacity: .6; transform: none; }
+  .handoff-error {
+    margin: 0;
+    padding: 10px 24px;
+    background: var(--signal);
+    color: #fff8ed;
+    font: 700 12px/1.4 "Courier New", monospace;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 44px 24px 90px; }
+  .brief {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(230px, .7fr);
+    gap: 22px;
+    margin-bottom: 34px;
+  }
+  .brief-copy { border-top: 5px solid var(--signal); padding-top: 17px; }
+  .kicker {
+    margin: 0 0 8px;
+    color: var(--muted);
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .brief-copy p:last-child { margin: 0; font-size: clamp(21px, 3vw, 32px); line-height: 1.18; }
+  .settled {
+    border: 1px solid var(--line);
+    background: var(--card);
+    padding: 16px;
+  }
+  .settled h2 {
+    margin: 0 0 11px;
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .settled ul { margin: 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
+  .settled .empty { color: var(--muted); font-size: 13px; font-style: italic; }
+  .handoff {
+    margin: -8px 0 28px;
+    border-left: 5px solid var(--cyan);
+    background: var(--cyan-soft);
+    padding: 13px 16px;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .handoff strong {
+    color: var(--cyan);
+    font: 700 12px/1.3 "Courier New", monospace;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+  }
+  .round-head {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin: 42px 0 22px;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 7px;
+  }
+  .round-head:first-child { margin-top: 0; }
+  .round-head h2 {
+    margin: 0;
+    font: 700 15px/1.2 "Courier New", monospace;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  .round-head .assumes {
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+  .question {
+    position: relative;
+    border: 2px solid var(--ink);
+    background: var(--card);
+    margin-bottom: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+  .question::before {
+    content: attr(data-number);
+    position: absolute;
+    left: -13px;
+    top: -13px;
+    width: 31px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--ink);
+    background: var(--signal);
+    color: #fff8ed;
+    font: 700 13px/1 "Courier New", monospace;
+  }
+  .question-id {
+    margin: 0 0 7px;
+    color: var(--cyan);
+    font: 700 11px/1.3 "Courier New", monospace;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+  .affects {
+    display: inline-block;
+    border: 1px solid var(--cyan);
+    background: var(--cyan-soft);
+    color: var(--cyan);
+    padding: 1px 8px;
+    font: 700 10px/1.5 "Courier New", monospace;
+    letter-spacing: .05em;
+    text-transform: none;
+  }
+  .question h2 { margin: 0 0 7px; font-size: clamp(20px, 3vw, 27px); line-height: 1.2; }
+  .context { max-width: 760px; margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+  .lock-notice {
+    display: none;
+    margin: 0 0 16px;
+    border: 1px dashed var(--amber);
+    background: var(--amber-soft);
+    color: var(--amber);
+    padding: 10px 13px;
+    font: 700 12px/1.5 "Courier New", monospace;
+  }
+  .question.locked { border-style: dashed; box-shadow: none; }
+  .question.locked::before { background: var(--muted); }
+  .question.locked .lock-notice { display: block; }
+  .question.locked .options, .question.locked h2 { opacity: .55; }
+  .options { display: grid; gap: 9px; }
+  .option {
+    display: grid;
+    grid-template-columns: 21px 1fr auto;
+    align-items: start;
+    gap: 11px;
+    border: 1px solid var(--line);
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+  }
+  .option:hover { border-color: var(--ink); transform: translateX(2px); }
+  .question.locked .option { cursor: default; }
+  .question.locked .option:hover { border-color: var(--line); transform: none; }
+  .option.checked { border-color: var(--cyan); background: var(--cyan-soft); }
+  .option.checked.off-path { border-color: var(--signal); background: var(--signal-soft); }
+  .option input { margin-top: 4px; accent-color: var(--cyan); }
+  .label { font-weight: 700; }
+  .detail { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .recommended {
+    color: var(--signal);
+    font: 700 10px/1.3 "Courier New", monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .mockup {
+    margin: 0 0 18px;
+    border: 1px solid var(--line);
+    background: var(--paper-deep);
+    padding: 8px;
+  }
+  .mockup iframe {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--line);
+    background: #fff;
+  }
+  .mockup figcaption {
+    margin-top: 7px;
+    color: var(--muted);
+    font: 700 10px/1.4 "Courier New", monospace;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .option .mockup { grid-column: 2; margin: 0 0 2px; }
+  .other-input, .comment, .freeform {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 10px 11px;
+  }
+  .other-input { margin-top: 9px; }
+  .comment-label { display: block; margin-top: 15px; color: var(--muted); font-size: 12px; }
+  .comment { min-height: 56px; margin-top: 5px; resize: vertical; }
+  .freeform { min-height: 120px; resize: vertical; }
+  dialog {
+    width: min(680px, calc(100% - 32px));
+    border: 2px solid var(--ink);
+    border-radius: 0;
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 10px 10px 0 var(--signal);
+    padding: 22px;
+  }
+  dialog::backdrop { background: rgba(0, 0, 0, .62); }
+  dialog textarea { width: 100%; min-height: 290px; }
+  .dialog-actions { text-align: right; margin-top: 12px; }
+  @media (max-width: 720px) {
+    .masthead-inner { flex-wrap: wrap; }
+    .title-block { min-width: calc(100% - 70px); }
+    .count { margin-left: 66px; text-align: left; }
+    .copy { margin-left: auto; }
+    .brief { grid-template-columns: 1fr; }
+    .question { padding: 21px 17px; }
+    .option { grid-template-columns: 21px 1fr; }
+    .recommended { grid-column: 2; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .question { animation: arrive 360ms ease both; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(9px); } }
+  }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="mark" aria-hidden="true">P__PASS__</div>
+    <div class="title-block">
+      <p class="eyebrow">Pre-generated interview / pass __PASS__</p>
+      <h1>__TITLE__</h1>
+    </div>
+    <span class="count" id="count" aria-live="polite"></span>
+    <button class="copy" id="sendBtn" type="button" hidden>Send to agent</button>
+    <button class="copy ghost" id="stageBtn" type="button" hidden>Prefill composer</button>
+    <button class="copy" id="copyBtn" type="button">Copy prompt</button>
+  </div>
+  <p class="handoff-error" id="handoffError" role="alert" hidden></p>
+</header>
+
+<main>
+  <section class="brief" aria-label="Interview briefing">
+    <div class="brief-copy">
+      <p class="kicker">What this interview settles</p>
+      <p id="topic"></p>
+    </div>
+    <aside class="settled">
+      <h2>Already established</h2>
+      <div id="settled"></div>
+    </aside>
+  </section>
+  <p class="handoff" id="handoff"><strong>How to continue</strong><br>Every round below was pre-generated by assuming the recommended answer at each step. Change anything you disagree with — questions that depended on a changed answer lock themselves and only take comments. When you are done, click <b>Copy prompt</b> and paste the copied prompt back into this chat.</p>
+  <div id="questions"></div>
+</main>
+
+<dialog id="fallback">
+  <p><strong>Clipboard access is unavailable.</strong> Copy this text manually:</p>
+  <textarea id="fallbackText" class="freeform"></textarea>
+  <div class="dialog-actions"><button class="copy" id="closeDialog" type="button">Close</button></div>
+</dialog>
+
+<script>
+const PASS = __PASS__;
+const TOPIC = __TOPIC__;
+const SETTLED = __SETTLED_JSON__;
+const SETTLED_IDS = new Set(__SETTLED_IDS_JSON__);
+// The whole pre-generated interview: an array of rounds, each an array of
+// questions. Later rounds were generated assuming the recommended answer to
+// every earlier question — that assumption is what deviation-locking protects.
+const ROUNDS = __ROUNDS_JSON__;
+// The pane running this interview when opened inside browser-mux (else null).
+const TARGET_PANE = __TARGET_PANE_JSON__;
+
+document.getElementById('topic').textContent = TOPIC;
+
+const settledRoot = document.getElementById('settled');
+if (SETTLED.length) {
+  const list = document.createElement('ul');
+  SETTLED.forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    list.appendChild(li);
+  });
+  settledRoot.appendChild(list);
+} else {
+  settledRoot.innerHTML = '<span class="empty">First pass — nothing settled yet.</span>';
+}
+
+// ---- Flatten and validate -------------------------------------------------
+// Prerequisites may point at settled decisions or at questions in an EARLIER
+// round of this same file (that is the point of pre-generation). Same-round
+// and forward references are still errors: they mean the round layering is wrong.
+const ALL = [];
+ROUNDS.forEach((qs, r) => qs.forEach(q => { ALL.push({ ...q, round: r }); }));
+const byId = new Map();
+ALL.forEach((q, i) => {
+  if (!q.id) throw new Error(`Question ${i + 1} is missing an id.`);
+  if (byId.has(q.id)) throw new Error(`Duplicate question id: ${q.id}.`);
+  byId.set(q.id, i);
+});
+
+ALL.forEach((q, i) => {
+  if (!Array.isArray(q.prerequisites)) {
+    throw new Error(`Question ${q.id} must declare a prerequisites array.`);
+  }
+  q.prerequisites.forEach(p => {
+    if (SETTLED_IDS.has(p)) return;
+    if (!byId.has(p)) throw new Error(`Question ${q.id} has unknown/unsettled prerequisite: ${p}.`);
+    const pr = ALL[byId.get(p)].round;
+    if (pr === q.round) throw new Error(`Question ${q.id} depends on same-round question ${p}.`);
+    if (pr > q.round) throw new Error(`Question ${q.id} has a forward prerequisite: ${p}.`);
+  });
+
+  const type = q.type || 'single';
+  const options = q.options || [];
+  const recommendedCount = options.filter(option => option.recommended).length;
+  if (!['single', 'multi'].includes(type)) {
+    throw new Error(`Question ${q.id} must use type "single" or "multi".`);
+  }
+  if (!options.length) {
+    throw new Error(`Question ${q.id} must define concrete options.`);
+  }
+  if (recommendedCount < 1 || (type === 'single' && recommendedCount !== 1)) {
+    throw new Error(`Question ${q.id} has an invalid recommendation count.`);
+  }
+  [q.mockup, ...options.map(option => option.mockup)].forEach(mock => {
+    if (mock !== undefined && (typeof mock !== 'object' || mock === null || typeof mock.html !== 'string' || !mock.html.trim())) {
+      throw new Error(`Question ${q.id} has a mockup without an html string.`);
+    }
+  });
+});
+
+// ---- Dependency graph -----------------------------------------------------
+const dependents = new Map(ALL.map(q => [q.id, []]));
+ALL.forEach(q => q.prerequisites.forEach(p => {
+  if (dependents.has(p)) dependents.get(p).push(q.id);
+}));
+
+function closureOf(id) {
+  const out = new Set();
+  const stack = [...(dependents.get(id) || [])];
+  while (stack.length) {
+    const next = stack.pop();
+    if (out.has(next)) continue;
+    out.add(next);
+    stack.push(...(dependents.get(next) || []));
+  }
+  return out;
+}
+const CLOSURES = new Map(ALL.map(q => [q.id, closureOf(q.id)]));
+
+// ---- Render ---------------------------------------------------------------
+const questionsRoot = document.getElementById('questions');
+ROUNDS.forEach((qs, r) => {
+  const head = document.createElement('div');
+  head.className = 'round-head';
+  head.innerHTML = `<h2>Round ${r + 1}</h2>` +
+    (r > 0 ? '<span class="assumes">pre-generated assuming the recommended answers above</span>' : '');
+  questionsRoot.appendChild(head);
+  qs.forEach(q => renderQuestion(ALL[byId.get(q.id)]));
+});
+
+function renderQuestion(q) {
+  const i = byId.get(q.id);
+  const type = q.type || 'single';
+  const options = q.options;
+  const card = document.createElement('section');
+  card.className = 'question';
+  card.id = `card-${q.id}`;
+  card.dataset.number = String(i + 1).padStart(2, '0');
+
+  const affected = [...CLOSURES.get(q.id)];
+  let html = `<p class="question-id"><span>Node ${esc(q.id)}</span>` +
+    (affected.length ? `<span class="affects">affects ${esc(affected.join(', '))}</span>` : '') +
+    '</p>';
+  html += `<h2>${esc(q.question)}</h2>`;
+  if (q.context) html += `<p class="context">${esc(q.context)}</p>`;
+  html += `<p class="lock-notice" id="lock-${q.id}"></p>`;
+  if (q.mockup) html += '<span class="mockup-slot" data-mock="question"></span>';
+
+  const inputType = type === 'multi' ? 'checkbox' : 'radio';
+  html += '<div class="options">';
+  options.forEach((option, j) => {
+    html += `<label class="option">
+      <input type="${inputType}" name="q${i}" value="${j}" ${option.recommended ? 'checked' : ''}>
+      <span class="label">${esc(option.label)}${option.detail ? `<span class="detail">${esc(option.detail)}</span>` : ''}</span>
+      ${option.recommended ? '<span class="recommended">Recommended</span>' : ''}
+      ${option.mockup ? `<span class="mockup-slot" data-mock="${j}"></span>` : ''}
+    </label>`;
+  });
+  html += `<label class="option">
+    <input type="${inputType}" name="q${i}" value="other">
+    <span class="label">Other<input class="other-input" id="other${i}" type="text" placeholder="Your answer…"></span>
+  </label></div>`;
+  html += `<label class="comment-label">Additional comments (optional)
+    <textarea class="comment" id="comment${i}" placeholder="Add nuance, constraints, or context…"></textarea>
+  </label>`;
+  card.innerHTML = html;
+  card.querySelectorAll('.mockup-slot').forEach(slot => {
+    const mock = slot.dataset.mock === 'question' ? q.mockup : options[Number(slot.dataset.mock)].mockup;
+    slot.replaceWith(mockupFrame(mock));
+  });
+  questionsRoot.appendChild(card);
+}
+
+// Mockups render in sandboxed iframes: their CSS and JS stay isolated from the
+// form, and srcdoc is assigned programmatically so no attribute escaping is needed.
+function mockupFrame(mock) {
+  const figure = document.createElement('figure');
+  figure.className = 'mockup';
+  const frame = document.createElement('iframe');
+  frame.setAttribute('sandbox', 'allow-scripts');
+  frame.setAttribute('title', mock.caption || 'Mockup preview');
+  frame.style.height = `${Math.min(720, Math.max(60, Number(mock.height) || 180))}px`;
+  frame.srcdoc = mock.html;
+  figure.appendChild(frame);
+  if (mock.caption) {
+    const caption = document.createElement('figcaption');
+    caption.textContent = mock.caption;
+    figure.appendChild(caption);
+  }
+  return figure;
+}
+
+function esc(value) {
+  return String(value).replace(/[&<>\"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[char]));
+}
+
+// ---- Deviation + lock state ----------------------------------------------
+// A deviation is a selection that differs from the recommended set, or an
+// "Other" pick. Comments never count; the agent interprets those after submit.
+function selectedValues(i) {
+  return [...document.querySelectorAll(`input[name=q${i}]:checked`)].map(el => el.value);
+}
+
+function isDeviated(i) {
+  const q = ALL[i];
+  const checked = selectedValues(i);
+  if (checked.includes('other')) return true;
+  const recommended = q.options
+    .map((option, j) => (option.recommended ? String(j) : null))
+    .filter(v => v !== null);
+  return checked.slice().sort().join('|') !== recommended.sort().join('|');
+}
+
+let lockedSet = new Set();
+
+function recomputeLocks() {
+  const deviated = ALL.filter((q, i) => isDeviated(i)).map(q => q.id);
+  const deviatedSet = new Set(deviated);
+  // Locked = everything downstream of any deviation. A deviated question that
+  // is itself downstream of another deviation counts as locked, not deviated:
+  // its premise is gone, so its answer is void.
+  const nextLocked = new Set();
+  deviated.forEach(id => CLOSURES.get(id).forEach(d => nextLocked.add(d)));
+
+  ALL.forEach((q, i) => {
+    const locked = nextLocked.has(q.id);
+    const card = document.getElementById(`card-${q.id}`);
+    card.classList.toggle('locked', locked);
+    card.querySelectorAll(`input[name=q${i}], #other${i}`).forEach(input => {
+      input.disabled = locked;
+    });
+    if (locked) {
+      const causes = deviated.filter(d => !nextLocked.has(d) && CLOSURES.get(d).has(q.id));
+      document.getElementById(`lock-${q.id}`).textContent =
+        `Impacted by your answer to ${causes.join(', ') || 'an earlier question'} — needs revisiting. ` +
+        'This question was written assuming the recommended path. Leave a comment if you have direction for its rewrite.';
+    }
+  });
+  lockedSet = nextLocked;
+  return deviatedSet;
+}
+
+function syncState() {
+  const deviatedSet = recomputeLocks();
+  document.querySelectorAll('.option').forEach(label => {
+    const input = label.querySelector('input[type=radio], input[type=checkbox]');
+    if (!input) return;
+    label.classList.toggle('checked', input.checked);
+    const card = label.closest('.question');
+    const qid = card.id.replace(/^card-/, '');
+    label.classList.toggle('off-path', input.checked && deviatedSet.has(qid) && !lockedSet.has(qid));
+  });
+  const answered = ALL.filter((q, i) => selectedValues(i).length).length;
+  const deviations = [...deviatedSet].filter(id => !lockedSet.has(id)).length;
+  const parts = [`${answered}/${ALL.length} answered`];
+  if (deviations) parts.push(`${deviations} deviation${deviations === 1 ? '' : 's'}`);
+  if (lockedSet.size) parts.push(`${lockedSet.size} impacted`);
+  document.getElementById('count').innerHTML =
+    esc(parts[0]) + (parts.length > 1 ? ` · <span class="impacted-count">${esc(parts.slice(1).join(' · '))}</span>` : '');
+}
+
+document.addEventListener('input', syncState);
+document.addEventListener('change', syncState);
+document.querySelectorAll('.other-input').forEach(input => {
+  input.addEventListener('input', () => {
+    const choice = input.closest('.option').querySelector('input[name]');
+    if (input.value.trim() && !choice.disabled) choice.checked = true;
+    syncState();
+  });
+});
+syncState();
+
+// ---- Prompt ---------------------------------------------------------------
+function answerText(i) {
+  const q = ALL[i];
+  const checked = selectedValues(i);
+  const answers = checked.map(value => value === 'other'
+    ? (document.getElementById(`other${i}`).value.trim() || '(other — unspecified)')
+    : q.options[Number(value)].label);
+  return answers.length ? answers.join('; ') : '(no answer)';
+}
+
+function commentText(i) {
+  return document.getElementById(`comment${i}`).value.trim();
+}
+
+function buildPrompt() {
+  const deviatedSet = recomputeLocks();
+  const deviations = ALL.filter(q => deviatedSet.has(q.id) && !lockedSet.has(q.id));
+  const impacted = ALL.filter(q => lockedSet.has(q.id));
+  const confirmed = ALL.filter(q => !deviatedSet.has(q.id) && !lockedSet.has(q.id));
+  const lines = [];
+  const pushQuestion = (q, answerLabel) => {
+    const i = byId.get(q.id);
+    lines.push(`- [${q.id}] ${q.question}`);
+    lines.push(`  ${answerLabel}: ${answerText(i)}`);
+    const comment = commentText(i);
+    if (comment) lines.push(`  Comment: ${comment}`);
+  };
+
+  if (!deviations.length && !impacted.length) {
+    lines.push(`Pre-batch grill me HTML — pass ${PASS} answers (clean pass)`, '');
+    ROUNDS.forEach((qs, r) => {
+      lines.push(`Round ${r + 1}:`);
+      qs.forEach(q => pushQuestion(q, 'Answer'));
+      lines.push('');
+    });
+    lines.push(
+      'Every question was answered with the recommended path intact. Treat comments as authoritative where they add constraints.',
+      'Present the final synthesis of the shared understanding and ask me to confirm it. Do not begin implementation until I confirm.'
+    );
+    return lines.join('\n').trim() + '\n';
+  }
+
+  lines.push(`Pre-batch grill me HTML — pass ${PASS} answers (deviations present)`, '');
+  lines.push('DEVIATIONS (answers changed from the recommendation):');
+  deviations.forEach(q => pushQuestion(q, 'Answer'));
+  lines.push('');
+  lines.push('IMPACTED (locked read-only; written assuming the recommended path, now invalid):');
+  impacted.forEach(q => {
+    const causes = deviations.filter(d => CLOSURES.get(d.id).has(q.id)).map(d => d.id);
+    const i = byId.get(q.id);
+    lines.push(`- [${q.id}] ${q.question} (impacted by: ${causes.join(', ') || 'upstream deviation'})`);
+    lines.push(`  Assumed answer (invalid): ${answerText(i)}`);
+    const comment = commentText(i);
+    if (comment) lines.push(`  Comment: ${comment}`);
+  });
+  lines.push('');
+  lines.push('CONFIRMED (accepted as presented):');
+  confirmed.forEach(q => pushQuestion(q, 'Answer'));
+  lines.push('');
+  lines.push(
+    'Treat comments as authoritative where they conflict with a selection.',
+    'The deviations above invalidated part of the pre-generated tree. Move the confirmed and deviated decisions to settled,',
+    're-run pre-generation for the impacted and still-open branches from these answers, and open the next all-rounds pass.'
+  );
+  return lines.join('\n').trim() + '\n';
+}
+
+async function copyText(value) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch (error) {}
+  try {
+    const textarea = document.createElement('textarea');
+    textarea.value = value;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    return copied;
+  } catch (error) {
+    return false;
+  }
+}
+
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const value = buildPrompt();
+  const button = document.getElementById('copyBtn');
+  if (await copyText(value)) {
+    button.textContent = 'Copied';
+    button.classList.add('done');
+    window.setTimeout(() => {
+      button.textContent = 'Copy prompt';
+      button.classList.remove('done');
+    }, 1800);
+    return;
+  }
+  const fallback = document.getElementById('fallback');
+  const textarea = document.getElementById('fallbackText');
+  textarea.value = value;
+  fallback.showModal();
+  textarea.select();
+});
+
+document.getElementById('closeDialog').addEventListener('click', () => {
+  document.getElementById('fallback').close();
+});
+
+// Hand the pass back without the clipboard when this form is rendered in a
+// browser-mux web pane. The host exposes `bmuxArtifact` on the parent window
+// and only same-origin pages — the ones browser-mux itself serves — can read
+// it, so a cross-origin parent throws here and the clipboard path stays.
+const bmuxHost = (() => {
+  try {
+    if (!TARGET_PANE || window.parent === window) return null;
+    const api = window.parent.bmuxArtifact;
+    return api && typeof api.submitPrompt === 'function' ? api : null;
+  } catch (error) {
+    return null;
+  }
+})();
+
+if (bmuxHost) {
+  const sendBtn = document.getElementById('sendBtn');
+  const stageBtn = document.getElementById('stageBtn');
+  const errorLine = document.getElementById('handoffError');
+  sendBtn.hidden = false;
+  stageBtn.hidden = false;
+  document.getElementById('handoff').innerHTML =
+    '<strong>How to continue</strong><br>Every round below was pre-generated by assuming the recommended answer at each step. ' +
+    'Change anything you disagree with — dependent questions lock themselves and only take comments. When you are done, ' +
+    '<b>Send to agent</b> submits the pass as your next turn, <b>Prefill composer</b> stages it for editing. Either one closes this pane. ' +
+    '<b>Copy prompt</b> still works if you would rather paste it yourself.';
+
+  const handOff = async (button, submit, doneLabel) => {
+    const label = button.textContent;
+    errorLine.hidden = true;
+    sendBtn.disabled = true;
+    stageBtn.disabled = true;
+    button.textContent = 'Sending…';
+    let outcome;
+    try {
+      outcome = await bmuxHost.submitPrompt({
+        source: window,
+        targetPaneId: TARGET_PANE,
+        text: buildPrompt(),
+        submit,
+        closeSelf: true,
+      });
+    } catch (error) {
+      outcome = { ok: false, error: String(error) };
+    }
+    if (outcome && outcome.ok) {
+      button.textContent = doneLabel;
+      button.classList.add('done');
+      return;
+    }
+    sendBtn.disabled = false;
+    stageBtn.disabled = false;
+    button.textContent = label;
+    errorLine.textContent =
+      (outcome && outcome.error ? outcome.error : 'the prompt was not delivered') +
+      ' — use Copy prompt and paste the pass back into the chat instead.';
+    errorLine.hidden = false;
+  };
+
+  sendBtn.addEventListener('click', () => handOff(sendBtn, true, 'Sent'));
+  stageBtn.addEventListener('click', () => handOff(stageBtn, false, 'Staged'));
+}
+</script>
+</body>
+</html>

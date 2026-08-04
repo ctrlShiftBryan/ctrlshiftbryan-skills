@@ -118,6 +118,16 @@
         "github": "ctrlShiftBryan"
       },
       "source": "./plugins/worktrees"
+    },
+    {
+      "name": "pre-batch-grill-me-html",
+      "description": "Pre-generate an entire dependency-aware design interview and deliver it as one all-rounds HTML form. Walks the recommended-answer path to full depth up-front (research included), embeds the dependency graph so deviations lock their downstream questions live in the page, and loops rebuild passes until a clean pass closes on confirmed shared understanding.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/pre-batch-grill-me-html"
     }
   ]
 }
