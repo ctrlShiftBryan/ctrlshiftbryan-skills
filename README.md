@@ -17,6 +17,7 @@ Bryan's personal Claude Code plugins and skills.
 | [`questionnaire`](plugins/questionnaire) | skill | Batch 3+ clarifying questions into a local HTML form — recommended answers pre-checked, per-question comments, and a "Copy prompt" button that serializes everything into one paste-back prompt. |
 | [`batch-grill-me-html`](plugins/batch-grill-me-html) | skill | Conduct a manual, dependency-aware design interview in HTML rounds — each form contains the complete current decision frontier, recommended answers, optional sandboxed HTML mockups for visual choices, Plannotator injection, and a paste-back prompt. |
 | [`worktrees`](plugins/worktrees) | skill | Bryan's git worktree conventions (`gw`/`gwct`/`gwb`/`gwl`) — sibling `<repo>-worktrees/<branch>` layout, create from main repo on main, remote-branch checkout with tracking, merged-only cleanup that also deletes the branch. |
+| [`zoom-out`](plugins/zoom-out) | skill | Manually zoom out one abstraction level and map the relevant modules and callers using the project's domain glossary vocabulary. |
 
 ## Install
 
