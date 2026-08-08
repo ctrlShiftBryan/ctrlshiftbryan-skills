@@ -17,7 +17,6 @@ Each form includes:
 - An answered counter and a top-level **Copy prompt** button that copies all answers and additional comments as one paste-back prompt
 - A visible instruction to paste the copied prompt back into the chat session
 - A clipboard fallback for local `file://` pages
-- The Plannotator injection script for in-browser annotation support
 
 After the answers are pasted back, the agent updates the tree and opens the next frontier. When no branches remain, it presents the shared understanding and waits for explicit confirmation before acting.
 
@@ -41,7 +40,7 @@ This skill is manual-only: a relentless interview should begin because you asked
 | Component | Name | Purpose |
 |---|---|---|
 | skill | `batch-grill-me-html` | Builds the decision tree, researches facts, manages the frontier, and controls the confirmation gate |
-| asset | `assets/round.html` | Single-file form template used for each interview round, with the Plannotator injection script loaded from GitHub Pages |
+| asset | `assets/round.html` | Single-file form template used for each interview round |
 
 ## Attribution
 
