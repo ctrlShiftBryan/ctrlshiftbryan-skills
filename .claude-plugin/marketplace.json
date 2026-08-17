@@ -138,6 +138,16 @@
         "github": "ctrlShiftBryan"
       },
       "source": "./plugins/pre-batch-grill-me-html"
+    },
+    {
+      "name": "copilot",
+      "description": "Delegate work to GitHub Copilot CLI (gpt-5.6-sol) \u2014 implementation (scoped changes via `copilot -p`), review (independent diff review), and adversarial-review (challenge review attacking the approach, design choices, and assumptions \u2014 the Copilot counterpart of /codex:adversarial-review).",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/copilot"
     }
   ]
 }
