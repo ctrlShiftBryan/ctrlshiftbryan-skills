@@ -60,26 +60,41 @@ ar_build_valid_json() {
   '
 }
 
-# args: <valid-json> <input-json>. stdout: { placeable: [...], dropped: [...] }.
+# args: <valid-json-file> <input-json-file> <unavailable-paths-json-file>.
+# stdout: { placeable: [...], dropped: [...], unavailable: [...] }. Bulk JSON
+# stays in files so large diffs cannot exceed the process argument-size limit.
 # A comment is placeable iff its end (path,side,line) is a valid target, and —
 # when ranged — its start is valid, in the SAME hunk, and start_line <= line.
+# A non-placeable comment is unavailable when GitHub omitted that file's patch;
+# every other non-placeable comment is dropped as an invalid diff anchor.
 ar_partition() {
-  local valid="$1" input="$2"
-  jq -n --argjson valid "$valid" --argjson input "$input" '
+  local valid_file="$1" input_file="$2" unavailable_file="$3"
+  jq -n \
+    --slurpfile valid "$valid_file" \
+    --slurpfile input "$input_file" \
+    --slurpfile unavailable "$unavailable_file" '
+    ($valid[0] // {}) as $targets
+    | ($input[0] // {}) as $review
+    | ($unavailable[0] // []) as $unavailable_paths
+    |
     def eside(c): (c.side // "RIGHT");
     def sside(c): (c.start_side // c.side // "RIGHT");
     def endkey(c):   "\(c.path)|\(eside(c))|\(c.line)";
     def startkey(c): "\(c.path)|\(sside(c))|\(c.start_line)";
     def placeable(c):
-      ($valid[endkey(c)] != null)
-      and ( if (c.start_line != null)
-            then ($valid[startkey(c)] != null)
-                 and ($valid[startkey(c)] == $valid[endkey(c)])
-                 and (c.start_line <= c.line)
+      c as $comment
+      | ($targets[endkey($comment)] != null)
+      and ( if ($comment.start_line != null)
+            then ($targets[startkey($comment)] != null)
+                 and ($targets[startkey($comment)] == $targets[endkey($comment)])
+                 and ($comment.start_line <= $comment.line)
             else true end );
-    ($input.comments // []) as $cs
+    def patch_unavailable(c):
+      c as $comment | ($unavailable_paths | index($comment.path)) != null;
+    ($review.comments // []) as $cs
     | { placeable: [ $cs[] | select(placeable(.)) ],
-        dropped:   [ $cs[] | select(placeable(.) | not) ] }
+        dropped: [ $cs[] | select((placeable(.) or patch_unavailable(.)) | not) ],
+        unavailable: [ $cs[] | select((placeable(.) | not) and patch_unavailable(.)) ] }
   '
 }
 
@@ -98,19 +113,31 @@ ar_review_comments() {
       ]'
 }
 
-# args: <summary> <n-comments> <y-files> <dropped-json> [footer]. stdout: review
-# body. Always emits the mechanical line; appends a ⚠️ notice listing any
-# comments that could not be placed inline, and a "— <footer>" signature when a
-# footer is given.
+# args: <summary-file> <n-comments> <y-files> <dropped-json-file>
+# <unavailable-json-file> [footer]. stdout: review body. Always emits the
+# mechanical line; appends distinct notices for invalid anchors and unavailable
+# GitHub patches, plus a "— <footer>" signature when a footer is given.
 ar_compose_body() {
-  local summary="$1" n="$2" y="$3" dropped="$4" footer="${5:-}"
-  jq -n -r --arg summary "$summary" --argjson n "$n" --argjson y "$y" --argjson dropped "$dropped" --arg footer "$footer" '
-    ( if ($summary | length) > 0 then $summary + "\n\n" else "" end )
+  local summary_file="$1" n="$2" y="$3" dropped_file="$4" unavailable_file="$5" footer="${6:-}"
+  jq -n -rj \
+    --rawfile summary "$summary_file" \
+    --argjson n "$n" \
+    --argjson y "$y" \
+    --slurpfile dropped "$dropped_file" \
+    --slurpfile unavailable "$unavailable_file" \
+    --arg footer "$footer" '
+    ($dropped[0] // []) as $invalid_comments
+    | ($unavailable[0] // []) as $unavailable_comments
+    | ( if ($summary | length) > 0 then $summary + "\n\n" else "" end )
     + "---\n"
     + "Reviewed \($n) comment\(if $n == 1 then "" else "s" end) across \($y) file\(if $y == 1 then "" else "s" end)."
-    + ( if ($dropped | length) > 0 then
+    + ( if ($invalid_comments | length) > 0 then
           "\n\n**⚠️ Comments that could not be placed inline** (line not in the diff):\n\n"
-          + ( [ $dropped[] | "- `\(.path):\(.line)` — " + ((.body // "") | gsub("\n"; " ")) ] | join("\n") )
+          + ( [ $invalid_comments[] | "- `\(.path):\(.line)` — " + ((.body // "") | gsub("\n"; " ")) ] | join("\n") )
+        else "" end )
+    + ( if ($unavailable_comments | length) > 0 then
+          "\n\n**⚠️ Comments that could not be validated inline** (GitHub did not provide patch data for the file):\n\n"
+          + ( [ $unavailable_comments[] | "- `\(.path):\(.line)` — " + ((.body // "") | gsub("\n"; " ")) ] | join("\n") )
         else "" end )
     + ( if ($footer | length) > 0 then "\n\n— " + $footer else "" end )
   '
@@ -184,15 +211,21 @@ ar_main() {
   command -v gh >/dev/null 2>&1 || ar_die "gh CLI not found"
   command -v jq >/dev/null 2>&1 || ar_die "jq not found"
 
-  # read review JSON
-  local input_json
+  local tmpdir
+  tmpdir="$(mktemp -d)"
+  # shellcheck disable=SC2064  # expand the validated mktemp path while the local is in scope
+  trap "rm -rf -- '$tmpdir'" EXIT
+
+  # read and validate review JSON
+  local review_input
   if [[ -n "$input_file" ]]; then
     [[ -f "$input_file" ]] || ar_die "input file not found: $input_file"
-    input_json="$(cat "$input_file")"
+    review_input="$input_file"
+    jq -e . "$review_input" >/dev/null 2>&1 || ar_die "input is not valid JSON"
   else
-    input_json="$(cat)"
+    review_input="${tmpdir}/input.json"
+    jq -e . >"$review_input" 2>/dev/null || ar_die "input is not valid JSON"
   fi
-  jq -e . >/dev/null 2>&1 <<<"$input_json" || ar_die "input is not valid JSON"
 
   # resolve repo / pr / head sha
   [[ -n "$repo" ]] || repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)" \
@@ -206,12 +239,11 @@ ar_main() {
     || ar_die "could not read head SHA for PR #$pr"
 
   # build the valid-target set from the PR diff
-  local files_json y targets
-  files_json="$(gh api --paginate "/repos/${repo}/pulls/${pr}/files" | jq -s 'add')"
-  y="$(jq 'length' <<<"$files_json")"
-  targets="$(mktemp)"
-  # shellcheck disable=SC2064  # expand $targets now: the local is out of scope when the EXIT trap fires
-  trap "rm -f '$targets'" EXIT
+  local files_json="${tmpdir}/files.json" y targets="${tmpdir}/targets.tsv"
+  local unavailable_paths="${tmpdir}/unavailable-paths.json"
+  gh api --paginate "/repos/${repo}/pulls/${pr}/files" | jq -s 'add // []' >"$files_json"
+  y="$(jq 'length' "$files_json")"
+  jq '[ .[] | select(.patch == null) | .filename ]' "$files_json" >"$unavailable_paths"
   while IFS= read -r row; do
     local path patch
     path="$(jq -r '.filename' <<<"$row")"
@@ -219,24 +251,43 @@ ar_main() {
     [[ -n "$patch" ]] || continue
     printf '%s\n' "$patch" | ar_targets_from_patch \
       | awk -v p="$path" 'BEGIN{FS=OFS="\t"} {print p,$1,$2,$3}'
-  done < <(jq -c '.[]' <<<"$files_json") >>"$targets"
+  done < <(jq -c '.[]' "$files_json") >"$targets"
 
-  local valid_json part placeable dropped n comments_payload summary body payload
-  valid_json="$(ar_build_valid_json <"$targets")"
-  part="$(ar_partition "$valid_json" "$input_json")"
-  placeable="$(jq '.placeable' <<<"$part")"
-  dropped="$(jq '.dropped' <<<"$part")"
-  n="$(jq 'length' <<<"$placeable")"
-  comments_payload="$(ar_review_comments <<<"$placeable")"
-  summary="$(jq -r '.summary // ""' <<<"$input_json")"
-  body="$(ar_compose_body "$summary" "$n" "$y" "$dropped" "${GH_APP_REVIEW_FOOTER:-}")"
-  payload="$(jq -n --arg commit "$head_sha" --arg body "$body" --argjson comments "$comments_payload" \
-    '{ commit_id: $commit, event: "COMMENT", body: $body, comments: $comments }')"
+  local valid_json="${tmpdir}/valid.json" part="${tmpdir}/partition.json"
+  local placeable="${tmpdir}/placeable.json" dropped="${tmpdir}/dropped.json"
+  local unavailable_comments="${tmpdir}/unavailable-comments.json"
+  local comments_payload="${tmpdir}/comments.json" summary="${tmpdir}/summary.txt"
+  local body="${tmpdir}/body.txt" payload="${tmpdir}/payload.json" n
+  ar_build_valid_json <"$targets" >"$valid_json"
+  ar_partition "$valid_json" "$review_input" "$unavailable_paths" >"$part"
+  jq '.placeable' "$part" >"$placeable"
+  jq '.dropped' "$part" >"$dropped"
+  jq '.unavailable' "$part" >"$unavailable_comments"
+  n="$(jq 'length' "$placeable")"
+  ar_review_comments <"$placeable" >"$comments_payload"
+  jq -rj '.summary // ""' "$review_input" >"$summary"
+  ar_compose_body \
+    "$summary" \
+    "$n" \
+    "$y" \
+    "$dropped" \
+    "$unavailable_comments" \
+    "${GH_APP_REVIEW_FOOTER:-}" >"$body"
+  jq -n \
+    --arg commit "$head_sha" \
+    --rawfile body "$body" \
+    --slurpfile comments "$comments_payload" \
+    '{ commit_id: $commit, event: "COMMENT", body: $body, comments: ($comments[0] // []) }' \
+    >"$payload"
 
   if [[ "$dry_run" -eq 1 ]]; then
     printf '=== DRY RUN — repo=%s pr=#%s head=%s ===\n' "$repo" "$pr" "$head_sha" >&2
-    printf 'placeable=%s dropped=%s files=%s\n' "$n" "$(jq 'length' <<<"$dropped")" "$y" >&2
-    jq . <<<"$payload"
+    printf 'placeable=%s dropped=%s unavailable=%s files=%s\n' \
+      "$n" \
+      "$(jq 'length' "$dropped")" \
+      "$(jq 'length' "$unavailable_comments")" \
+      "$y" >&2
+    jq . "$payload"
     return 0
   fi
 
@@ -249,8 +300,8 @@ ar_main() {
   local token url
   token="$(ar_mint_token "$pem" "$app_id" "$inst_id")" \
     || ar_die "failed to mint installation token"
-  url="$(printf '%s' "$payload" | GH_TOKEN="$token" gh api -X POST \
-    "/repos/${repo}/pulls/${pr}/reviews" --input - --jq '.html_url')" \
+  url="$(GH_TOKEN="$token" gh api -X POST \
+    "/repos/${repo}/pulls/${pr}/reviews" --input "$payload" --jq '.html_url')" \
     || ar_die "review POST failed"
   printf 'Posted review as the GitHub App: %s\n' "$url"
 }

@@ -1,6 +1,6 @@
 ---
 name: post-review-as-bot
-description: Post a code review to a GitHub PR as inline comments attributed to a GitHub App (a "[bot]" account) rather than the human running the command. The agent produces the review JSON; the bundled script validates each comment against the PR diff (dropping unplaceable ones into a notice), composes a Copilot-style body, mints an installation token from the app's private key, and submits one atomic COMMENT review. Use when asked to post a review as a bot / GitHub App.
+description: Post a code review to a GitHub PR as inline comments attributed to a GitHub App (a "[bot]" account) rather than the human running the command. The agent produces the review JSON; the bundled script validates each comment against the PR diff, composes a Copilot-style body, mints an installation token from the app's private key, and submits one atomic COMMENT review. Use when asked to post a review as a bot / GitHub App.
 allowed-tools: Bash(bash:*), Bash(gh:*), Bash(jq:*)
 ---
 
@@ -12,9 +12,9 @@ shows as `your-app[bot]` instead of the human who ran it).
 **You generate the review** (this part is yours — read the diff, reason about the
 code, write the prose + inline comments). **The script handles everything
 mechanical**: it validates every comment against the PR diff, drops unplaceable
-ones into a `⚠️` notice in the body, appends the `Reviewed N comments across Y
-files` line + optional footer, mints the installation token, and submits ONE atomic
-`event: COMMENT` review (Copilot-style — never APPROVE/REQUEST_CHANGES).
+anchors into `⚠️` notices in the body, appends the `Reviewed N comments across Y
+files` line + optional footer, mints the installation token, and submits ONE
+atomic `event: COMMENT` review (Copilot-style — never APPROVE/REQUEST_CHANGES).
 
 The script is **app-agnostic**: the bot identity comes entirely from environment
 variables (see `README.md` for one-time GitHub App setup).
@@ -60,6 +60,16 @@ variables (see `README.md` for one-time GitHub App setup).
    ```
 
    (Or write the JSON to a file and pass `--input <file>` instead of piping.)
+
+## Validation outcomes
+
+- A valid anchor becomes an inline review comment.
+- A line outside the supplied PR diff moves into a `line not in the diff` notice.
+- A comment on a file whose patch GitHub omitted moves into a distinct `GitHub
+  did not provide patch data` notice. This is unverifiable, not an invalid line.
+
+Validation streams large diff metadata through files, so PR size does not expose
+the script to the operating system's command-argument limit.
 
 ## Prerequisites
 

@@ -7,8 +7,8 @@ command.
 The agent (Claude) writes the review JSON. The bundled, app-agnostic script
 (`skills/post-review-as-bot/scripts/gh-app-review.sh`) does the mechanical work:
 
-- validates every comment against the PR diff and drops unplaceable ones into a
-  `⚠️` notice in the review body,
+- validates every comment against the PR diff and moves invalid anchors or
+  GitHub-omitted patches into distinct `⚠️` notices in the review body,
 - appends a `Reviewed N comments across Y files` line and an optional footer,
 - mints a short-lived installation token from the app's private key,
 - submits **one atomic `event: COMMENT` review** (never APPROVE / REQUEST_CHANGES).
@@ -102,6 +102,20 @@ echo "$REVIEW_JSON" \
 
 `--pr <num>` and `--repo <owner/name>` auto-detect from the current branch when
 omitted. Use `--input <file>` instead of piping if you prefer a file.
+
+## Validation behavior
+
+The script keeps diff metadata in temporary files rather than process arguments,
+so large PRs do not hit the operating system's argument-size limit. Valid anchors
+become inline comments. Invalid anchors appear under `line not in the diff`; a
+comment targeting a file whose patch GitHub omitted appears under the separate
+`GitHub did not provide patch data` notice.
+
+Run the focused regression harness with:
+
+```bash
+bash skills/post-review-as-bot/tests/gh-app-review-test.sh
+```
 
 ## Prerequisites
 
