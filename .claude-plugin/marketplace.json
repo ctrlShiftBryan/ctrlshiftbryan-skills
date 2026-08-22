@@ -148,6 +148,16 @@
         "github": "ctrlShiftBryan"
       },
       "source": "./plugins/copilot"
+    },
+    {
+      "name": "codex-native",
+      "description": "Skills that run inside a Codex CLI session itself, with no Claude Code orchestration. codex-adversarial-review performs an adversarial review of uncommitted work, a branch diff, or a commit \u2014 challenging the implementation approach, design choices, tradeoffs, and assumptions rather than scanning for defects. The in-session counterpart of Claude Code's /codex:adversarial-review, minus the companion runtime, background jobs, and wait/background prompt.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Bryan Arendt",
+        "github": "ctrlShiftBryan"
+      },
+      "source": "./plugins/codex-native"
     }
   ]
 }
