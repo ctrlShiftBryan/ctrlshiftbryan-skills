@@ -1,9 +1,0 @@
-{
-  "name": "codex-native",
-  "version": "0.1.0",
-  "description": "Skills that run inside a Codex CLI session itself, with no Claude Code orchestration layer. Codex does the work directly instead of being driven through the codex-companion runtime.",
-  "author": {
-    "name": "Bryan Arendt",
-    "github": "ctrlShiftBryan"
-  }
-}

@@ -6,7 +6,7 @@ Delegate work from Claude Code to GitHub Copilot CLI (gpt-5.6-sol). Three skills
 
 - **`implementation`** (skill) — Hand a bounded code change to `copilot -p` with commit/push denied, then inspect the resulting diff and run verification before reporting done.
 - **`review`** (skill) — Get an independent review of uncommitted changes, a branch diff, or a commit; writes denied so the review stays read-only. Claude verifies findings against the code before relaying them.
-- **`adversarial-review`** (skill) — The Copilot counterpart of `/codex:adversarial-review`: a challenge review that attacks the approach, design choices, tradeoffs, and assumptions (full port of the codex adversarial prompt), returning a ship/no-ship markdown verdict with severity, confidence, and file:line findings.
+- **`copilot-adversarial-review`** (skill) — A challenge review that attacks the approach, design choices, tradeoffs, and assumptions, returning a ship/no-ship markdown verdict with severity, confidence, and file:line findings.
 
 ## Install
 

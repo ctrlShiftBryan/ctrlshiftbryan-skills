@@ -1,17 +1,17 @@
 ---
-name: codex-adversarial-review
-description: Run an adversarial review of a change from inside a Codex CLI session — challenge the implementation approach, design choices, tradeoffs, and assumptions of uncommitted work, a branch diff, or a commit. Use when the user wants a challenge review, a skeptical second opinion, a "try to break this" pass, or asks whether a change should ship. This is the in-session version of Claude Code's /codex:adversarial-review, with no companion runtime, no background jobs, and no wait/background prompt.
+name: adversarial-review
+description: Challenge the implementation approach, design choices, tradeoffs, and assumptions behind uncommitted work, a branch diff, or a commit. Use for a skeptical second opinion, a "try to break this" review, or a ship/no-ship assessment.
 ---
 
-# Adversarial Review
+# Adversarial review
 
 Review the change as if you are trying to find the strongest reasons it should not ship
 yet. Break confidence in it; do not validate it. This challenges the chosen approach,
-design, and assumptions — it is not a stricter pass over implementation defects.
+design, and assumptions. It is not a stricter pass over implementation defects.
 
 ## Review-only
 
-This skill is review-only, and nothing in the session enforces that for you.
+Work read-only throughout the review.
 
 - Do not edit, create, or delete any file.
 - Do not stage, commit, revert, or stash anything.
@@ -20,7 +20,7 @@ This skill is review-only, and nothing in the session enforces that for you.
   reads, and searches.
 
 Run `git status --short --untracked-files=all` before and after the review and confirm
-the two match. If they differ, say so at the top of the report — a review must not leave
+the two match. If they differ, say so at the top of the report. A review must not leave
 edits behind.
 
 ## Pick the target
@@ -39,8 +39,8 @@ Two things to get right before reading anything:
 1. **Untracked files never appear in `git diff`.** Always run
    `git status --short --untracked-files=all` first and read any new files in scope.
    A brand-new module is exactly the kind of thing an adversarial review must not skip.
-2. **Do not conclude there is nothing to review** until the scope is actually empty —
-   an empty `git diff --shortstat` with untracked files present is not empty. When in
+2. **Do not conclude there is nothing to review** until the scope is actually empty.
+   An empty `git diff --shortstat` with untracked files present is not empty. When in
    doubt, run the review.
 
 Name the exact command you used in the report so the user can see what you inspected.
@@ -112,14 +112,15 @@ filler. If the change looks safe, say so directly and return no findings.
 
 ## Report
 
-Write a markdown report to the session — no files, no output redirection.
+Return the markdown report in your final answer. Do not create a report file or redirect
+output.
 
 ```markdown
-**NEEDS ATTENTION** — <terse ship/no-ship assessment, one paragraph>
+**NEEDS ATTENTION:** <terse ship/no-ship assessment, one paragraph>
 
 Target: <label> (`<diff command>`)
 
-### 1. <title> — <severity>, confidence <0-1>
+### 1. <title> | <severity>, confidence <0-1>
 `<file>:<line-start>-<line-end>`
 
 **Failure scenario:** <what goes wrong, and the path that gets there>

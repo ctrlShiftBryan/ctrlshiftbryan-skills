@@ -18,8 +18,8 @@ Bryan's personal Claude Code plugins and skills.
 | [`batch-grill-me-html`](plugins/batch-grill-me-html) | skill | Conduct a manual, dependency-aware design interview in HTML rounds — each form contains the complete current decision frontier, recommended answers, optional sandboxed HTML mockups for visual choices, and a paste-back prompt. |
 | [`worktrees`](plugins/worktrees) | skill | Bryan's git worktree conventions (`gw`/`gwct`/`gwb`/`gwl`) — sibling `<repo>-worktrees/<branch>` layout, create from main repo on main, remote-branch checkout with tracking, merged-only cleanup that also deletes the branch. |
 | [`zoom-out`](plugins/zoom-out) | skill | Manually zoom out one abstraction level and map the relevant modules and callers using the project's domain glossary vocabulary. |
-| [`copilot`](plugins/copilot) | skills ×3 | Delegate work to GitHub Copilot CLI (gpt-5.6-sol) — `implementation` (scoped changes via `copilot -p`), `review` (independent diff review), `adversarial-review` (challenge review attacking approach/design/assumptions, counterpart of `/codex:adversarial-review`). |
-| [`codex-native`](plugins/codex-native) | skill | Skills that run *inside* a Codex CLI session (mirror of `codex-delegation`) — `codex-adversarial-review` challenges a change's approach, design, and assumptions with no companion runtime, background jobs, or wait/background prompt. |
+| [`copilot`](plugins/copilot) | skills ×3 | Delegate work to GitHub Copilot CLI (gpt-5.6-sol) — `implementation` (scoped changes via `copilot -p`), `review` (independent diff review), `copilot-adversarial-review` (challenge review attacking approach, design, and assumptions). |
+| [`adversarial-review`](plugins/adversarial-review) | skill | Run a skeptical, review-only assessment that challenges a change's approach, design, tradeoffs, and assumptions. |
 
 ## Install
 
