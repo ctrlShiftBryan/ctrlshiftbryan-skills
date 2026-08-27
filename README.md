@@ -19,7 +19,7 @@ Bryan's personal Claude Code plugins and skills.
 | [`worktrees`](plugins/worktrees) | skill | Bryan's git worktree conventions (`gw`/`gwct`/`gwb`/`gwl`) — sibling `<repo>-worktrees/<branch>` layout, create from main repo on main, remote-branch checkout with tracking, merged-only cleanup that also deletes the branch. |
 | [`zoom-out`](plugins/zoom-out) | skill | Manually zoom out one abstraction level and map the relevant modules and callers using the project's domain glossary vocabulary. |
 | [`copilot`](plugins/copilot) | skills ×3 | Delegate work to GitHub Copilot CLI (gpt-5.6-sol) — `implementation` (scoped changes via `copilot -p`), `review` (independent diff review), `copilot-adversarial-review` (challenge review attacking approach, design, and assumptions). |
-| [`adversarial-review`](plugins/adversarial-review) | skill | Run a skeptical, review-only assessment that challenges a change's approach, design, tradeoffs, and assumptions. |
+| [`adversarial-review`](plugins/adversarial-review) | skill | Review the current branch against `main`, retrieve any open pull request with `gh`, and challenge the change's approach, design, tradeoffs, and assumptions. |
 
 ## Install
 

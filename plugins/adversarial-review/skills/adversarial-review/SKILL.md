@@ -1,6 +1,6 @@
 ---
 name: adversarial-review
-description: Challenge the implementation approach, design choices, tradeoffs, and assumptions behind uncommitted work, a branch diff, or a commit. Use for a skeptical second opinion, a "try to break this" review, or a ship/no-ship assessment.
+description: Challenge the implementation approach, design choices, tradeoffs, and assumptions on the current branch compared with main, using its open GitHub pull request as context when one exists. Use for a skeptical second opinion, a "try to break this" review, or a ship/no-ship assessment.
 ---
 
 # Adversarial review
@@ -16,34 +16,45 @@ Work read-only throughout the review.
 - Do not edit, create, or delete any file.
 - Do not stage, commit, revert, or stash anything.
 - Do not fix an issue you find, and do not say you are about to.
-- Only run read-only commands: `git diff`, `git show`, `git status`, `git log`, file
-  reads, and searches.
+- Only run read-only commands such as `git diff`, `git show`, `git status`, `git log`,
+  `gh pr list`, file reads, and searches.
 
 Run `git status --short --untracked-files=all` before and after the review and confirm
 the two match. If they differ, say so at the top of the report. A review must not leave
 edits behind.
 
-## Pick the target
+## Review target
 
-Infer the target from what the user asked for. Default to the working tree.
+Review the committed changes on the current branch against `main`. Do not include
+staged, unstaged, or untracked changes in the review.
 
-| Target | Diff command |
-| --- | --- |
-| Uncommitted work (default) | `git diff HEAD` |
-| Branch vs base | `git diff $(git merge-base main HEAD)...HEAD` |
-| A single commit | `git show <sha>` |
-| Specific files | `git diff HEAD -- <paths>` |
+1. Get the current branch with `git branch --show-current`. If it returns no branch,
+   stop and report that the review requires a named branch.
+2. Run `git diff $(git merge-base main HEAD)...HEAD` and review that complete diff.
+3. Name the branch and exact diff command in the report.
 
-Two things to get right before reading anything:
+If `main` does not exist or the merge base cannot be resolved, stop and report the
+failure. Do not substitute another base branch or fetch remote changes.
 
-1. **Untracked files never appear in `git diff`.** Always run
-   `git status --short --untracked-files=all` first and read any new files in scope.
-   A brand-new module is exactly the kind of thing an adversarial review must not skip.
-2. **Do not conclude there is nothing to review** until the scope is actually empty.
-   An empty `git diff --shortstat` with untracked files present is not empty. When in
-   doubt, run the review.
+## Pull request context
 
-Name the exact command you used in the report so the user can see what you inspected.
+Use the GitHub CLI to find every open pull request whose head is the current branch:
+
+```bash
+gh pr list --state open --head "<current-branch>" --limit 100 \
+  --json number,title,body,url,baseRefName,headRefName,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup,comments,reviews
+```
+
+If the command returns pull requests, read all returned metadata and use it as review
+context. Compare the stated intent with the diff. Treat failed checks, unresolved review
+concerns, and mismatches between the pull request body and implementation as evidence to
+investigate, not conclusions to repeat without verification.
+
+If the command succeeds with an empty array, record that no open pull request exists for
+the branch and continue the review. If the command fails because `gh` is unavailable,
+unauthenticated, or cannot reach GitHub, state that the pull request check failed and
+continue with the branch diff. Never treat a failed lookup as proof that no pull request
+exists.
 
 ## Read enough context
 
@@ -119,6 +130,7 @@ output.
 **NEEDS ATTENTION:** <terse ship/no-ship assessment, one paragraph>
 
 Target: <label> (`<diff command>`)
+Pull request: <title and URL, "none found", or lookup failure>
 
 ### 1. <title> | <severity>, confidence <0-1>
 `<file>:<line-start>-<line-end>`

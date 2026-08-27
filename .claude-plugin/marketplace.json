@@ -151,7 +151,7 @@
     },
     {
       "name": "adversarial-review",
-      "description": "Run a skeptical, review-only assessment of uncommitted work, a branch diff, a commit, or specific files. The skill challenges the implementation approach, design choices, tradeoffs, and assumptions rather than scanning for ordinary defects.",
+      "description": "Review the current branch against main and retrieve any open pull request for that branch with the GitHub CLI. The skill challenges the implementation approach, design choices, tradeoffs, and assumptions rather than scanning for ordinary defects.",
       "version": "0.1.0",
       "author": {
         "name": "Bryan Arendt",
